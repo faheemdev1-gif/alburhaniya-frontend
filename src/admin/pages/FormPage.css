@@ -1,0 +1,115 @@
+@import './ListPage.css';
+/* ═══════════════════════════════════════════════════════════════
+   ADD THESE STYLES TO THE BOTTOM OF YOUR FormPage.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Image upload row ────────────────────────────────────────── */
+.image-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.image-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1.5px solid #4B5563;
+  border-radius: 8px;
+  color: #D1D5DB;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.image-upload-btn:hover:not(:disabled) {
+  border-color: #F5A623;
+  color: #F5A623;
+  background: rgba(245, 166, 35, 0.08);
+}
+.image-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.image-upload-or {
+  font-size: 0.8rem;
+  color: #6B7280;
+  flex-shrink: 0;
+}
+
+.image-url-input {
+  flex: 1;
+  min-width: 180px;
+}
+
+/* ── Upload spinner ──────────────────────────────────────────── */
+.upload-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: #F5A623;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 4px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Upload error message ────────────────────────────────────── */
+.upload-error-msg {
+  color: #F87171;
+  font-size: 0.82rem;
+  margin: 0.4rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.upload-error-msg::before {
+  content: '⚠';
+}
+
+/* ── Image preview ───────────────────────────────────────────── */
+.form-img-preview-wrap {
+  position: relative;
+  margin-top: 0.75rem;
+  display: inline-block;
+}
+
+.form-img-preview {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #374151;
+}
+
+.image-clear-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(17, 17, 14, 0.75);
+  border: 1px solid #4B5563;
+  border-radius: 6px;
+  color: #D1D5DB;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: inherit;
+}
+.image-clear-btn:hover {
+  background: #EF4444;
+  border-color: #EF4444;
+  color: #fff;
+}

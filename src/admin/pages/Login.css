@@ -1,0 +1,170 @@
+/* Login Page */
+.login-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0e1a;
+  position: relative;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.login-bg { position: absolute; inset: 0; pointer-events: none; }
+
+.login-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+}
+.login-bg-circle.c1 {
+  width: 500px; height: 500px;
+  background: #c9a84c;
+  top: -120px; right: -100px;
+}
+.login-bg-circle.c2 {
+  width: 400px; height: 400px;
+  background: #2d5a8e;
+  bottom: -100px; left: -80px;
+}
+.login-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 2.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.login-logo {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #c9a84c, #e8c96e);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 0.875rem;
+  color: #0a0e1a;
+  letter-spacing: 0.5px;
+}
+
+.login-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.login-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0ede6;
+  letter-spacing: 0.3px;
+}
+.login-brand-sub {
+  font-size: 0.75rem;
+  color: rgba(240,237,230,0.45);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.login-title {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: #f0ede6;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.3px;
+}
+.login-desc {
+  font-size: 0.9rem;
+  color: rgba(240,237,230,0.5);
+  margin: 0 0 2rem;
+}
+
+.login-form { display: flex; flex-direction: column; gap: 1.125rem; }
+
+.login-field { display: flex; flex-direction: column; gap: 0.375rem; }
+.login-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(240,237,230,0.7);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.login-field input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  color: #f0ede6;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+}
+.login-field input:focus {
+  border-color: rgba(201,168,76,0.6);
+  background: rgba(255,255,255,0.08);
+}
+.login-field input::placeholder { color: rgba(240,237,230,0.25); }
+
+.login-error {
+  font-size: 0.85rem;
+  color: #f87171;
+  background: rgba(248,113,113,0.1);
+  border: 1px solid rgba(248,113,113,0.2);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  margin: 0;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #c9a84c, #e8c96e);
+  color: #0a0e1a;
+  border: none;
+  border-radius: 10px;
+  padding: 0.875rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  margin-top: 0.25rem;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 48px;
+}
+.login-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.login-btn:active:not(:disabled) { transform: translateY(0); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.login-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(10,14,26,0.3);
+  border-top-color: #0a0e1a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

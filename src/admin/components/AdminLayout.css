@@ -1,0 +1,196 @@
+/* Admin Layout */
+*, *::before, *::after { box-sizing: border-box; }
+
+.al-root {
+  display: flex;
+  min-height: 100vh;
+  background: #0d1117;
+  font-family: 'DM Sans', sans-serif;
+  color: #e6e1d8;
+}
+
+/* ── Sidebar ── */
+.al-sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: #0a0e1a;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  flex-shrink: 0;
+}
+
+.al-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.al-logo {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #c9a84c, #e8c96e);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.8rem; color: #0a0e1a;
+  flex-shrink: 0;
+}
+
+.al-brand { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.al-brand-name {
+  font-size: 0.875rem; font-weight: 700; color: #f0ede6;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.al-brand-role {
+  font-size: 0.7rem; color: rgba(240,237,230,0.4);
+  text-transform: uppercase; letter-spacing: 0.6px;
+}
+
+.al-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.al-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: rgba(240,237,230,0.55);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+.al-nav-link:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(240,237,230,0.9);
+}
+.al-nav-link.active {
+  background: rgba(201,168,76,0.12);
+  color: #e8c96e;
+}
+
+.al-nav-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.al-sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.al-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1;
+  min-width: 0;
+}
+.al-user-avatar {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #2d5a8e, #4a85c8);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem; color: #fff;
+  flex-shrink: 0;
+}
+.al-user-details { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.al-user-name {
+  font-size: 0.82rem; font-weight: 600; color: #f0ede6;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.al-user-role {
+  font-size: 0.68rem; color: rgba(240,237,230,0.4);
+  text-transform: capitalize;
+}
+
+.al-logout-btn {
+  background: none; border: none;
+  color: rgba(240,237,230,0.4);
+  font-size: 1.1rem; cursor: pointer;
+  padding: 0.375rem; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.al-logout-btn:hover {
+  color: #f87171; background: rgba(248,113,113,0.1);
+}
+
+/* ── Main ── */
+.al-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.al-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  background: #0a0e1a;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.al-menu-btn {
+  background: none; border: none;
+  color: rgba(240,237,230,0.7); font-size: 1.2rem;
+  cursor: pointer; padding: 0.25rem;
+}
+
+.al-view-site {
+  font-size: 0.82rem; color: rgba(240,237,230,0.45);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.al-view-site:hover { color: #e8c96e; }
+
+.al-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* ── Mobile ── */
+.al-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 40;
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+  .al-topbar { display: flex; }
+  .al-overlay { display: block; }
+  .al-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  .al-sidebar.open { transform: translateX(0); }
+  .al-content { padding: 1.25rem; }
+}
