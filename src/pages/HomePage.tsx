@@ -562,7 +562,7 @@ export function HomePage() {
                 <div className="collage-thumb bottom"><img src="/images/20230812_230247.jpg" alt="Learning" /></div>
                 <div className="collage-badge">
                   <span className="badge-year">EST.</span>
-                  <span className="badge-num">2023</span>
+                  <span className="badge-num">March, 2023</span>
                 </div>
               </Reveal>
             </div>
@@ -570,7 +570,7 @@ export function HomePage() {
               <Reveal className="w-100 reveal-right">
                 <span className="section-eyebrow">Who We Are</span>
                 <h2 className="section-heading">A Community Built on<br /><em>Heart</em> &amp; <em>Heritage</em></h2>
-                <p className="section-body">Al Burhaniya International was founded in 2023 with a simple but powerful belief — that a neighbourhood is only as strong as its bonds. Over nearly two decades, we have grown into a thriving hub of culture, sport, arts, learning, and mutual care.</p>
+                <p className="section-body">Al Burhaniya International was founded in March 2023 with a simple but powerful belief — that a neighbourhood is only as strong as its bonds. Over nearly two decades, we have grown into a thriving hub of culture, sport, arts, learning, and mutual care.</p>
                 <p className="section-body">We serve people of all ages, backgrounds, and abilities, offering free and low-cost programmes that enrich lives, foster friendships, and celebrate the rich tapestry of cultures that make us who we are.</p>
                 <ValueCards />
                 <a href="#activities" className="btn btn-primary-main mt-4">Explore What We Do <i className="bi bi-arrow-right ms-1" /></a>
