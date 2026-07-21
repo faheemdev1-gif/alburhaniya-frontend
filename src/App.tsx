@@ -9,6 +9,8 @@ import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import GalleryPage from './pages/GalleryPage';
 import AdminRouter from './admin/AdminRouter';
+import FloatingStripeButton from "./components/FloatingStripeButton";
+
 
 function Layout({ inner, children }: { inner?: boolean; children: ReactNode }) {
   useEffect(() => {
@@ -37,44 +39,75 @@ function NotFound() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={<Layout><HomePage /></Layout>}
-      />
+    <>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <HomePage />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/articles"
-        element={<Layout inner><ArticlesPage /></Layout>}
-      />
-      <Route
-        path="/articles/:slug"
-        element={<Layout inner><ArticleDetailPage /></Layout>}
-      />
+        <Route
+          path="/articles"
+          element={
+            <Layout inner>
+              <ArticlesPage />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/events"
-        element={<Layout inner><EventsPage /></Layout>}
-      />
-      {/* ✅ Fixed: was :id, now :slug to match EventDetailPage */}
-      <Route
-        path="/events/:slug"
-        element={<Layout inner><EventDetailPage /></Layout>}
-      />
+        <Route
+          path="/articles/:slug"
+          element={
+            <Layout inner>
+              <ArticleDetailPage />
+            </Layout>
+          }
+        />
 
-      {/* ✅ New: Gallery page */}
-      <Route
-        path="/gallery"
-        element={<Layout inner><GalleryPage /></Layout>}
-      />
+        <Route
+          path="/events"
+          element={
+            <Layout inner>
+              <EventsPage />
+            </Layout>
+          }
+        />
 
-      {/* Admin panel — no Navbar/Footer wrapper */}
-      <Route path="/admin/*" element={<AdminRouter />} />
+        <Route
+          path="/events/:slug"
+          element={
+            <Layout inner>
+              <EventDetailPage />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="*"
-        element={<Layout inner><NotFound /></Layout>}
-      />
-    </Routes>
+        <Route
+          path="/gallery"
+          element={
+            <Layout inner>
+              <GalleryPage />
+            </Layout>
+          }
+        />
+
+        <Route path="/admin/*" element={<AdminRouter />} />
+
+        <Route
+          path="*"
+          element={
+            <Layout inner>
+              <NotFound />
+            </Layout>
+          }
+        />
+      </Routes>
+
+      <FloatingStripeButton />
+    </>
   );
 }
