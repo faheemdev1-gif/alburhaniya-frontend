@@ -96,3 +96,7 @@
     padding-inline: 10px;
   }
 }
+.btn-donate {
+  border: none;
+  cursor: pointer;
+}

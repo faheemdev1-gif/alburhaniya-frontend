@@ -121,10 +121,23 @@ export function Navbar({ variant }: { variant: "home" | "inner" }) {
               </NavLink>
             </li>
             <li className="nav-item ms-lg-3">
-              <NavLink className="btn btn-donate" to="/#donate">
+              <button
+                type="button"
+                className="btn btn-donate"
+                onClick={() => {
+                  window.dispatchEvent(new Event("open-donation-modal"));
+
+                  // Close the mobile navigation menu after clicking
+                  const navContent = document.getElementById("navContent");
+
+                  if (navContent?.classList.contains("show")) {
+                    Collapse.getInstance(navContent)?.hide();
+                  }
+                }}
+              >
                 <i className="bi bi-heart-fill me-1" />
-                Support Us
-              </NavLink>
+                Donate Now
+              </button>
             </li>
           </ul>
         </div>

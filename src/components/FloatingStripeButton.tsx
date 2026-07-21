@@ -3,7 +3,17 @@ import "./FloatingStripeButton.css";
 
 export default function FloatingStripeButton() {
   const [isOpen, setIsOpen] = useState(false);
+useEffect(() => {
+  const openDonationModal = () => {
+    setIsOpen(true);
+  };
 
+  window.addEventListener("open-donation-modal", openDonationModal);
+
+  return () => {
+    window.removeEventListener("open-donation-modal", openDonationModal);
+  };
+}, []);
   useEffect(() => {
     if (!isOpen) return;
 
