@@ -15,7 +15,7 @@ export function Footer() {
             <p className="footer-tagline">
               A living community — rooted in heritage, growing toward a shared future.
             </p>
-            <p className="footer-charity">Community Interest Company</p>
+            <p className="footer-charity">Community Interest Company 14740901</p>
           </div>
 
           <div className="col-6 col-lg-2">

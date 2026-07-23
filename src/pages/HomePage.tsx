@@ -5,6 +5,7 @@ import { Reveal } from "../components/Reveal";
 import { fetchArticles, type ApiArticle } from "../services/articleService";
 import { fetchEvents, type ApiEvent } from "../services/eventService";
 import api from "../services/api";
+import StripeBuyButton from "../components/StripeBuyButton";
 
 // ── Image helper ─────────────────────────────────────────────────
 const imgSrc = (url: string) =>
@@ -668,7 +669,11 @@ export function HomePage() {
               </Reveal>
             </div>
             <div className="col-lg-5 offset-lg-1">
-              <Reveal className="reveal-right"><DonateCard /></Reveal>
+              <Reveal className="reveal-right">
+                <div className="col-lg-5 offset-lg-1">
+  <Reveal className="reveal-right"><StripeBuyButton /></Reveal>
+</div>
+              </Reveal>
             </div>
           </div>
         </div>
