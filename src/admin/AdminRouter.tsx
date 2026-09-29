@@ -10,6 +10,7 @@ import EventsPage from './pages/EventsPage';
 import EventFormPage from './pages/EventFormPage';
 import GalleryPage from './pages/GalleryPage';
 import UsersPage from './pages/UsersPage';
+import SiteContentPage from './pages/SiteContentPage';
 
 // Import shared styles once here
 import './components/Shared.css';
@@ -38,6 +39,7 @@ export default function AdminRouter() {
           <Route path="events/new" element={<EventFormPage />} />
           <Route path="events/:id" element={<EventFormPage />} />
           <Route path="gallery" element={<GalleryPage />} />
+          <Route path="content" element={<SiteContentPage />} />
 
           {/* Admin-only */}
           <Route

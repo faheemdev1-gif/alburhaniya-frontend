@@ -1,3 +1,4 @@
+import { useContent, rich } from '../content';
 // ═══════════════════════════════════════════════════════════════
 //  src/pages/GalleryPage.tsx
 //  Filterable masonry gallery with lightbox — API-driven
@@ -116,6 +117,7 @@ function Lightbox({
 //  Main Page
 // ════════════════════════════════════════════════════════════════
 export default function GalleryPage() {
+  const pageContent = useContent().innerPages.gallery;
   const [allItems,  setAllItems]  = useState<ApiGalleryItem[]>([]);
   const [filter,    setFilter]    = useState('all');
   const [loading,   setLoading]   = useState(true);
@@ -171,11 +173,10 @@ export default function GalleryPage() {
           <div className="row align-items-end">
             <div className="col-lg-7">
               <div className="page-header-content">
-                <span className="section-eyebrow light">Moments Captured</span>
-                <h1 className="page-title">Our <em>Gallery</em></h1>
+                <span className="section-eyebrow light" dangerouslySetInnerHTML={rich(pageContent.eyebrow)}/>
+                <h1 className="page-title" dangerouslySetInnerHTML={rich(pageContent.heading)}/>
                 <p className="page-subtitle">
-                  A window into the life and spirit of Al Burhaniya — from festivals and sports days
-                  to quiet creative sessions and everything in between.
+                  {pageContent.description}
                 </p>
               </div>
             </div>
@@ -313,8 +314,8 @@ export default function GalleryPage() {
           <Reveal className="newsletter-band reveal-up">
             <div className="nl-icon"><i className="bi bi-camera-fill" /></div>
             <div className="nl-text">
-              <h3>Never Miss a Moment</h3>
-              <p>Subscribe to our newsletter and get the latest photos and event highlights delivered to your inbox.</p>
+              <h3>{pageContent.newsletterHeading}</h3>
+              <p>{pageContent.newsletterDescription}</p>
             </div>
             <NlForm />
           </Reveal>

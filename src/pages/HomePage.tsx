@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { HeroSection } from "../components/home/HeroSection";
 import { Reveal } from "../components/Reveal";
@@ -6,6 +6,7 @@ import { fetchArticles, type ApiArticle } from "../services/articleService";
 import { fetchEvents, type ApiEvent } from "../services/eventService";
 import api from "../services/api";
 import StripeBuyButton from "../components/StripeBuyButton";
+import { useContent, imageUrl, rich, safeHref, type SiteContent } from "../content";
 
 // ── Image helper ─────────────────────────────────────────────────
 const imgSrc = (url: string) =>
@@ -35,65 +36,8 @@ function BackToTop() {
 }
 
 // ── Value Cards ──────────────────────────────────────────────────
-function ValueCards() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const cards = wrap.querySelectorAll<HTMLElement>(".value-card");
-    cards.forEach((card) => {
-      card.style.opacity = "0";
-      card.style.transform = "translateY(20px)";
-      card.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-    });
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0]?.isIntersecting) return;
-        cards.forEach((card, i) => {
-          setTimeout(() => {
-            card.style.opacity = "1";
-            card.style.transform = "translateY(0)";
-          }, i * 100);
-        });
-        io.disconnect();
-      },
-      { threshold: 0.2 },
-    );
-    io.observe(wrap);
-    return () => io.disconnect();
-  }, []);
-  return (
-    <div className="about-values row g-3 mt-2" ref={wrapRef}>
-      <div className="col-6">
-        <div className="value-card">
-          <i className="bi bi-people-fill" />
-          <h5>Inclusivity</h5>
-          <p>Every person belongs here, without exception.</p>
-        </div>
-      </div>
-      <div className="col-6">
-        <div className="value-card">
-          <i className="bi bi-stars" />
-          <h5>Excellence</h5>
-          <p>We pursue quality in every programme we run.</p>
-        </div>
-      </div>
-      <div className="col-6">
-        <div className="value-card">
-          <i className="bi bi-globe2" />
-          <h5>Culture</h5>
-          <p>Celebrating diversity as our greatest strength.</p>
-        </div>
-      </div>
-      <div className="col-6">
-        <div className="value-card">
-          <i className="bi bi-globe2" />
-          <h5>Service</h5>
-          <p>Giving back to those who deserve and need the most.</p>
-        </div>
-      </div>
-    </div>
-  );
+function ValueCards({values}:{values:SiteContent['about']['values']}) {
+  return <div className="about-values row g-3 mt-2">{values.map((v,i)=><div className="col-6" key={i}><div className="value-card"><i className={`bi ${v.icon}`} /><h5>{v.title}</h5><p>{v.body}</p></div></div>)}</div>;
 }
 
 // ── Event List — fetched from API ────────────────────────────────
@@ -264,54 +208,13 @@ function GalleryGrid() {
   );
 }
 
-// ── Activities Grid (static — no change needed) ──────────────────
-const activities = [
-  { large: true, cat: "Gatherings", bg: "https://images.unsplash.com/photo-1609234656388-0ff363383899?w=900&q=80", icon: "bi-people", title: "Community Gatherings", body: "Monthly town halls, seasonal festivals, potluck dinners, and neighbourhood watch meetings that keep us united.", tag: "Every Month" },
-  { cat: "Music", bg: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=700&q=80", icon: "bi-music-note-beamed", title: "Music", body: "Choir groups, instrument lessons, open-mic nights, and live concerts featuring local talent.", tag: "Weekly" },
-  { cat: "Dance", bg: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=700&q=80", icon: "bi-activity", title: "Dance", body: "Bollywood, hip-hop, classical, salsa, and contemporary — classes for all levels and ages.", tag: "3× per Week" },
-  { cat: "Arts", bg: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=700&q=80", icon: "bi-brush", title: "Arts & Crafts", body: "Painting, pottery, calligraphy, mosaics, and collaborative mural projects across the neighbourhood.", tag: "Tues & Sat" },
-  { large: true, cat: "Sports", bg: "https://images.unsplash.com/photo-1547919307-1ecb10702e6f?w=900&q=80", icon: "bi-trophy", title: "Sports & Fitness", body: "Football, cricket, badminton, swimming, yoga, and annual community olympics. All skill levels welcome — fun is the only prerequisite.", tag: "Daily" },
-  { cat: "Youth", bg: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=700&q=80", icon: "bi-mortarboard", title: "Youth & Education", body: "After-school tutoring, coding clubs, leadership workshops, and mentorship for young minds.", tag: "Mon–Fri" },
-  { cat: "Seniors", bg: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=700&q=80", icon: "bi-heart-pulse", title: "Seniors Wellbeing", body: "Tea circles, gentle fitness, social lunches, digital literacy help, and wellbeing check-ins.", tag: "Daily" },
-];
-
-function ActivitiesGrid() {
+function ActivitiesGrid({activities}:{activities:SiteContent['activities']['cards']}) {
   const [pulse, setPulse] = useState<string | null>(null);
-  return (
-    <Reveal className="activities-grid reveal-up">
-      {activities.map((a) => (
-        <div
-          key={a.title}
-          className={"act-card" + (a.large ? " large" : "")}
-          data-category={a.cat}
-          onMouseEnter={() => setPulse(a.title)}
-          onMouseLeave={() => setPulse(null)}
-        >
-          <div className="act-bg" style={{ backgroundImage: `url('${a.bg}')` }} />
-          <div className="act-body">
-            <div className={"act-icon" + (pulse === a.title ? " pulse" : "")}>
-              <i className={`bi ${a.icon}`} />
-            </div>
-            <h3>{a.title}</h3>
-            <p>{a.body}</p>
-            <span className="act-tag">{a.tag}</span>
-          </div>
-        </div>
-      ))}
-    </Reveal>
-  );
+  return <Reveal className="activities-grid reveal-up">{activities.map((a,i)=><div key={i} className={"act-card"+(a.large?" large":"")} data-category={a.cat} onMouseEnter={()=>setPulse(a.title)} onMouseLeave={()=>setPulse(null)}><div className="act-bg" style={{backgroundImage:`url('${imageUrl(a.bg)}')`}}/><div className="act-body"><div className={"act-icon"+(pulse===a.title?" pulse":"")}><i className={`bi ${a.icon}`}/></div><h3>{a.title}</h3><p>{a.body}</p><span className="act-tag">{a.tag}</span></div></div>)}</Reveal>;
 }
 
 // ── Testimonials (unchanged) ─────────────────────────────────────
-const testimonials = [
-  { quote: `"Al Burhaniya gave my children a place to belong when we first moved here. The dance classes and youth club changed everything for our family."`, img: "https://randomuser.me/api/portraits/women/44.jpg", name: "Aisha Malik", role: "Member since 2019" },
-  { quote: `"I was 70 and lonely after my husband passed. The seniors tea circle brought me back to life. I've made friends I'll keep forever."`, img: "https://randomuser.me/api/portraits/women/72.jpg", name: "Margaret O'Brien", role: "Member since 2020" },
-  { quote: `"The cricket league was the reason I got fit, and the reason I met my best friends. Worth every Saturday morning."`, img: "https://randomuser.me/api/portraits/men/32.jpg", name: "Ravi Sharma", role: "Member since 2018" },
-  { quote: `"Running the community mural project was the most meaningful creative work I've done. Al Burhaniya makes art feel purposeful."`, img: "https://randomuser.me/api/portraits/women/28.jpg", name: "Elena Torres", role: "Volunteer Artist" },
-  { quote: `"As a donor, I see exactly where my money goes. The annual impact report is transparent and the team is passionate. I give every year."`, img: "https://randomuser.me/api/portraits/men/58.jpg", name: "James Holloway", role: "Supporter since 2017" },
-];
-
-function Testimonials() {
+function Testimonials({testimonials}:{testimonials:SiteContent['testimonials']['items']}) {
   const [idx, setIdx] = useState(0);
   const [winW, setWinW] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -338,12 +241,12 @@ function Testimonials() {
   return (
     <div className="testimonial-track-wrap reveal-up">
       <div className="testimonial-track" ref={trackRef}>
-        {testimonials.map((t) => (
-          <div className="testi-card" key={t.name}>
+        {testimonials.map((t,i) => (
+          <div className="testi-card" key={t.name+i}>
             <div className="testi-quote"><i className="bi bi-quote" /></div>
             <p>{t.quote}</p>
             <div className="testi-author">
-              <img src={t.img} alt="" />
+              <img src={imageUrl(t.img)} alt="" />
               <div>
                 <strong>{t.name}</strong>
                 <span>{t.role}</span>
@@ -486,6 +389,9 @@ function ArticlesSection() {
 
 // ── HomePage ─────────────────────────────────────────────────────
 export function HomePage() {
+  const content = useContent();
+  const {stats,about,activities,events,articles,gallery,join,donate,testimonials,contact,newsletter} = content;
+  const heading = (html:string) => rich(html);
   const [contactFlash, setContactFlash] = useState<string | null>(null);
   const [nlFlash, setNlFlash] = useState<string | null>(null);
 
@@ -528,28 +434,7 @@ export function HomePage() {
 
       <section id="stats-ticker">
         <div className="ticker-wrap">
-          <div className="ticker-track">
-            <span className="ticker-item"><strong>2,400+</strong> Members</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>18 Years</strong> of Service</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>120+</strong> Events Per Year</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>34</strong> Active Programmes</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>6</strong> Cultural Chapters</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>2,400+</strong> Members</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>18 Years</strong> of Service</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>120+</strong> Events Per Year</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>34</strong> Active Programmes</span>
-            <span className="ticker-sep">✦</span>
-            <span className="ticker-item"><strong>6</strong> Cultural Chapters</span>
-            <span className="ticker-sep">✦</span>
-          </div>
+          <div className="ticker-track">{[...stats.items,...stats.items].map((item,i)=><Fragment key={i}><span className="ticker-item"><strong>{item.value}</strong> {item.label}</span><span className="ticker-sep">✦</span></Fragment>)}</div>
         </div>
       </section>
 
@@ -558,23 +443,23 @@ export function HomePage() {
           <div className="row align-items-center gy-5">
             <div className="col-lg-6">
               <Reveal className="about-image-collage reveal-left">
-                <div className="collage-main"><img src="/images/20231006_090317.jpg" alt="Community" /></div>
-                <div className="collage-thumb top"><img src="/images/20221007_154440.jpg" alt="Together" /></div>
-                <div className="collage-thumb bottom"><img src="/images/20230812_230247.jpg" alt="Learning" /></div>
+                <div className="collage-main"><img src={imageUrl(about.imageMain)} alt="Community" /></div>
+                <div className="collage-thumb top"><img src={imageUrl(about.imageTop)} alt="Together" /></div>
+                <div className="collage-thumb bottom"><img src={imageUrl(about.imageBottom)} alt="Learning" /></div>
                 <div className="collage-badge">
                   <span className="badge-year">EST.</span>
-                  <span className="badge-num">March, 2023</span>
+                  <span className="badge-num">{about.established}</span>
                 </div>
               </Reveal>
             </div>
             <div className="col-lg-6 ps-lg-5">
               <Reveal className="w-100 reveal-right">
-                <span className="section-eyebrow">Who We Are</span>
-                <h2 className="section-heading">A Community Built on<br /><em>Heart</em> &amp; <em>Heritage</em></h2>
-                <p className="section-body">Al Burhaniya International was founded in March 2023 with a simple but powerful belief — that a neighbourhood is only as strong as its bonds. Over nearly two decades, we have grown into a thriving hub of culture, sport, arts, learning, and mutual care.</p>
-                <p className="section-body">We serve people of all ages, backgrounds, and abilities, offering free and low-cost programmes that enrich lives, foster friendships, and celebrate the rich tapestry of cultures that make us who we are.</p>
-                <ValueCards />
-                <a href="#activities" className="btn btn-primary-main mt-4">Explore What We Do <i className="bi bi-arrow-right ms-1" /></a>
+                <span className="section-eyebrow">{about.eyebrow}</span>
+                <h2 className="section-heading" dangerouslySetInnerHTML={heading(about.heading)}/>
+                <p className="section-body">{about.paragraph1}</p>
+                <p className="section-body">{about.paragraph2}</p>
+                <ValueCards values={about.values}/>
+                <a href={safeHref(about.buttonHref)} className="btn btn-primary-main mt-4">{about.buttonLabel} <i className="bi bi-arrow-right ms-1" /></a>
               </Reveal>
             </div>
           </div>
@@ -584,11 +469,11 @@ export function HomePage() {
       <section id="activities" className="section-activities">
         <div className="container">
           <Reveal className="text-center mb-5 reveal-up">
-            <span className="section-eyebrow light">What We Do</span>
-            <h2 className="section-heading light">Activities &amp; Programmes</h2>
-            <p className="section-body light mx-auto" style={{ maxWidth: 600 }}>From sunrise yoga to late-night music jams — there is something happening every single day of the week.</p>
+            <span className="section-eyebrow light">{activities.eyebrow}</span>
+            <h2 className="section-heading light" dangerouslySetInnerHTML={heading(activities.heading)}/>
+            <p className="section-body light mx-auto" style={{ maxWidth: 600 }}>{activities.description}</p>
           </Reveal>
-          <ActivitiesGrid />
+          <ActivitiesGrid activities={activities.cards}/>
         </div>
       </section>
 
@@ -596,11 +481,11 @@ export function HomePage() {
         <div className="container">
           <Reveal className="row align-items-end mb-5 reveal-up">
             <div className="col-lg-7">
-              <span className="section-eyebrow">What's On</span>
-              <h2 className="section-heading">Upcoming <em>Events</em></h2>
+              <span className="section-eyebrow">{events.eyebrow}</span>
+              <h2 className="section-heading" dangerouslySetInnerHTML={heading(events.heading)}/>
             </div>
             <div className="col-lg-5 text-lg-end">
-              <Link to="/events" className="link-arrow">View Full Calendar <i className="bi bi-arrow-right" /></Link>
+              <Link to="/events" className="link-arrow">{events.buttonLabel} <i className="bi bi-arrow-right" /></Link>
             </div>
           </Reveal>
           <EventList />
@@ -611,11 +496,11 @@ export function HomePage() {
         <div className="container">
           <Reveal className="row align-items-end mb-5 reveal-up">
             <div className="col-lg-7">
-              <span className="section-eyebrow">Stories &amp; Insights</span>
-              <h2 className="section-heading">Latest <em>Articles</em></h2>
+              <span className="section-eyebrow">{articles.eyebrow}</span>
+              <h2 className="section-heading" dangerouslySetInnerHTML={heading(articles.heading)}/>
             </div>
             <div className="col-lg-5 text-lg-end">
-              <Link to="/articles" className="link-arrow">All Articles <i className="bi bi-arrow-right" /></Link>
+              <Link to="/articles" className="link-arrow">{articles.buttonLabel} <i className="bi bi-arrow-right" /></Link>
             </div>
           </Reveal>
           <ArticlesSection />
@@ -625,13 +510,13 @@ export function HomePage() {
       <section id="gallery" className="section-gallery">
         <div className="container">
           <Reveal className="text-center mb-5 reveal-up">
-            <span className="section-eyebrow light">Moments Captured</span>
-            <h2 className="section-heading light">Our <em>Gallery</em></h2>
-            <p className="section-body light">A glimpse into the life and spirit of Al Burhaniya.</p>
+            <span className="section-eyebrow light">{gallery.eyebrow}</span>
+            <h2 className="section-heading light" dangerouslySetInnerHTML={heading(gallery.heading)}/>
+            <p className="section-body light">{gallery.description}</p>
           </Reveal>
           <GalleryGrid />
           <div className="text-center mt-5 reveal-up">
-            <Link to="/gallery" className="btn btn-primary-main mt-2">View Full Gallery</Link>
+            <Link to="/gallery" className="btn btn-primary-main mt-2">{gallery.buttonLabel}</Link>
           </div>
         </div>
       </section>
@@ -640,12 +525,12 @@ export function HomePage() {
         <div className="container">
           <Reveal className="join-band reveal-up">
             <div className="join-text">
-              <h2>Become a <em>Member</em> Today</h2>
-              <p>Join 2,400+ neighbours who are already part of the Al Burhaniya family. Free membership, full access.</p>
+              <h2 dangerouslySetInnerHTML={heading(join.heading)}/>
+              <p>{join.description}</p>
             </div>
             <div className="join-actions">
-              <a href="#contact" className="btn btn-join-light">Sign Up Free</a>
-              <a href="#donate" className="btn btn-join-outline">Support Us Instead</a>
+              <a href={safeHref(join.primaryHref)} className="btn btn-join-light">{join.primaryLabel}</a>
+              <a href={safeHref(join.secondaryHref)} className="btn btn-join-outline">{join.secondaryLabel}</a>
             </div>
           </Reveal>
         </div>
@@ -657,15 +542,10 @@ export function HomePage() {
           <div className="row align-items-center gy-5">
             <div className="col-lg-6">
               <Reveal className="reveal-left">
-                <span className="section-eyebrow light">Make a Difference</span>
-                <h2 className="section-heading light">Your Support <em>Changes Lives</em></h2>
-                <p className="section-body light">Every pound donated goes directly into our programmes, keeping them free and accessible for everyone — especially those who need them most.</p>
-                <div className="impact-list mt-4">
-                  <div className="impact-item"><span className="impact-icon"><i className="bi bi-gift" /></span><div><strong>£10</strong><span>Covers materials for one art workshop session</span></div></div>
-                  <div className="impact-item"><span className="impact-icon"><i className="bi bi-people" /></span><div><strong>£25</strong><span>Funds a senior's wellbeing tea circle for a month</span></div></div>
-                  <div className="impact-item"><span className="impact-icon"><i className="bi bi-trophy" /></span><div><strong>£50</strong><span>Sponsors a young person's sports programme for a term</span></div></div>
-                  <div className="impact-item"><span className="impact-icon"><i className="bi bi-building-heart" /></span><div><strong>£100+</strong><span>Helps sustain a full community programme for a season</span></div></div>
-                </div>
+                <span className="section-eyebrow light">{donate.eyebrow}</span>
+                <h2 className="section-heading light" dangerouslySetInnerHTML={heading(donate.heading)}/>
+                <p className="section-body light">{donate.description}</p>
+                <div className="impact-list mt-4">{donate.impacts.map((item,i)=><div className="impact-item" key={i}><span className="impact-icon"><i className={`bi ${item.icon}`}/></span><div><strong>{item.amount}</strong><span>{item.text}</span></div></div>)}</div>
               </Reveal>
             </div>
             <div className="col-lg-5 offset-lg-1">
@@ -682,10 +562,10 @@ export function HomePage() {
       <section className="section-testimonials">
         <div className="container">
           <Reveal className="text-center mb-5 reveal-up">
-            <span className="section-eyebrow">Community Voices</span>
-            <h2 className="section-heading">What Our Members <em>Say</em></h2>
+            <span className="section-eyebrow">{testimonials.eyebrow}</span>
+            <h2 className="section-heading" dangerouslySetInnerHTML={heading(testimonials.heading)}/>
           </Reveal>
-          <Testimonials />
+          <Testimonials testimonials={testimonials.items}/>
         </div>
       </section>
 
@@ -694,22 +574,16 @@ export function HomePage() {
           <div className="row gy-5">
             <div className="col-lg-5">
               <Reveal className="reveal-left">
-                <span className="section-eyebrow">Get In Touch</span>
-                <h2 className="section-heading">We'd Love to <em>Hear</em><br />From You</h2>
-                <p className="section-body">Whether you want to join, volunteer, partner, or just ask a question — our doors (and inboxes) are always open.</p>
+                <span className="section-eyebrow">{contact.eyebrow}</span>
+                <h2 className="section-heading" dangerouslySetInnerHTML={heading(contact.heading)}/>
+                <p className="section-body">{contact.description}</p>
                 <div className="contact-info mt-4">
-                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-geo-alt-fill" /></div><div><strong>Address</strong><span>164 Cheetham Hill Rd, Cheetham Hill, Manchester M8 8LQ</span></div></div>
-                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-telephone-fill" /></div><div><strong>Phone</strong><span>+44 74 5942 4579</span></div></div>
-                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-envelope-fill" /></div><div><strong>Email</strong><span>info@al-burhaniyainternational.co.uk</span></div></div>
-                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-clock-fill" /></div><div><strong>Opening Hours</strong><span>Mon–Fri 8am–9pm · Sat–Sun 9am–6pm</span></div></div>
+                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-geo-alt-fill" /></div><div><strong>Address</strong><span>{contact.address}</span></div></div>
+                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-telephone-fill" /></div><div><strong>Phone</strong><span>{contact.phone}</span></div></div>
+                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-envelope-fill" /></div><div><strong>Email</strong><span>{contact.email}</span></div></div>
+                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-clock-fill" /></div><div><strong>Opening Hours</strong><span>{contact.hours}</span></div></div>
                 </div>
-                <div className="social-links mt-4">
-                  <a href="#" className="soc-link" aria-label="Facebook"><i className="bi bi-facebook" /></a>
-                  <a href="#" className="soc-link" aria-label="Instagram"><i className="bi bi-instagram" /></a>
-                  <a href="#" className="soc-link" aria-label="Twitter/X"><i className="bi bi-twitter-x" /></a>
-                  <a href="#" className="soc-link" aria-label="YouTube"><i className="bi bi-youtube" /></a>
-                  <a href="#" className="soc-link" aria-label="WhatsApp"><i className="bi bi-whatsapp" /></a>
-                </div>
+                <div className="social-links mt-4">{(['facebook','instagram','twitter','youtube','whatsapp'] as const).filter(k=>contact[k]).map(k=><a key={k} href={safeHref(contact[k])} className="soc-link" aria-label={k}><i className={`bi bi-${k==='twitter'?'twitter-x':k}`}/></a>)}</div>
               </Reveal>
             </div>
             <div className="col-lg-6 offset-lg-1">
@@ -736,8 +610,8 @@ export function HomePage() {
           <Reveal className="newsletter-band reveal-up">
             <div className="nl-icon"><i className="bi bi-envelope-open-heart" /></div>
             <div className="nl-text">
-              <h3>Stay in the Loop</h3>
-              <p>Get our monthly newsletter with event highlights, articles, and community news.</p>
+              <h3>{newsletter.heading}</h3>
+              <p>{newsletter.description}</p>
             </div>
             <form className="nl-form" onSubmit={onNl}>
               <input type="email" placeholder="Your email address" required />

@@ -1,67 +1,10 @@
+import { useContent, imageUrl, rich, safeHref } from '../../content';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const SLIDE_DELAY = 5500;
 
-const slides = [
-  {
-    bg: "/images/together-stronger.jpg",
-    tag: "Welcome to Our Community",
-    title: (
-      <>
-        We Are <em>Together</em>
-        <br />
-        Stronger
-      </>
-    ),
-    sub: "A vibrant space where culture, creativity, and connection flourish every day.",
-    primary: { href: "#about", label: "Discover Us" },
-    secondary: { href: "#events", label: "Upcoming Events" },
-  },
-  {
-    bg: "/images/rhythm-meet-soul.jpg",
-    tag: "Music & Arts",
-    title: (
-      <>
-        Where <em>Rhythm</em>
-        <br />
-        Meets Soul
-      </>
-    ),
-    sub: "Live performances, art exhibitions, and cultural celebrations throughout the year.",
-    primary: { href: "#activities", label: "Our Activities" },
-    secondary: { href: "#gallery", label: "View Gallery" },
-  },
-  {
-    bg: "/images/move-thrive.jpg",
-    tag: "Sports & Wellness",
-    title: (
-      <>
-        Move. <em>Thrive.</em>
-        <br />
-        Belong.
-      </>
-    ),
-    sub: "From weekend sports leagues to yoga mornings — body and spirit united.",
-    primary: { href: "#activities", label: "Join In" },
-    secondary: { href: "#donate", label: "Support Us" },
-  },
-  {
-    bg: "/images/every-voice.JPG",
-    tag: "Community Gatherings",
-    title: (
-      <>
-        Every <em>Voice</em>
-        <br />
-        Matters Here
-      </>
-    ),
-    sub: "Monthly town halls, festivals, and shared meals that bring neighbours together.",
-    primary: { href: "#events", label: "See Events" },
-    secondary: { href: "#articles", label: "Read Stories" },
-  },
-];
-
 export function HeroSection() {
+  const slides = useContent().hero.slides;
   const [current, setCurrent] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -91,15 +34,15 @@ export function HeroSection() {
   const goTo = useCallback((index: number) => {
     const n = slides.length;
     setCurrent(((index % n) + n) % n);
-  }, []);
+  }, [slides.length]);
 
   const next = useCallback(() => {
     setCurrent((c) => (c + 1) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const prev = useCallback(() => {
     setCurrent((c) => (c - 1 + slides.length) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const startAuto = useCallback(() => {
     clearAuto();
@@ -107,7 +50,7 @@ export function HeroSection() {
       setCurrent((c) => (c + 1) % slides.length);
     }, SLIDE_DELAY);
     resetProgress();
-  }, [clearAuto, resetProgress]);
+  }, [clearAuto, resetProgress, slides.length]);
 
   useEffect(() => {
     resetProgress();
@@ -149,6 +92,8 @@ export function HeroSection() {
     return () => document.removeEventListener("keydown", onKey);
   }, [clearAuto, next, prev, startAuto]);
 
+  if (!slides.length) return null;
+
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -173,20 +118,20 @@ export function HeroSection() {
       <div className="hero-slider" id="heroSlider">
         {slides.map((slide, i) => (
           <div
-            key={slide.bg}
+            key={i}
             className={"slide" + (i === current ? " active" : "")}
-            style={{ backgroundImage: `url('${slide.bg}')` }}
+            style={{ backgroundImage: `url('${imageUrl(slide.bg)}')` }}
           >
             <div className="slide-overlay" />
             <div className="slide-content">
               <span className="slide-tag">{slide.tag}</span>
-              <h1 className="slide-title">{slide.title}</h1>
+              <h1 className="slide-title" dangerouslySetInnerHTML={rich(slide.title)} />
               <p className="slide-sub">{slide.sub}</p>
               <div className="slide-actions">
-                <a href={slide.primary.href} className="btn btn-hero-primary">
+                <a href={safeHref(slide.primary.href)} className="btn btn-hero-primary">
                   {slide.primary.label}
                 </a>
-                <a href={slide.secondary.href} className="btn btn-hero-ghost">
+                <a href={safeHref(slide.secondary.href)} className="btn btn-hero-ghost">
                   {slide.secondary.label}
                 </a>
               </div>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import "./FloatingStripeButton.css";
+import './FloatingStripeButton.css';
+import { useContent } from '../content';
 
 export default function FloatingStripeButton() {
+  const label = useContent().navigation.donate;
   const [isOpen, setIsOpen] = useState(false);
 useEffect(() => {
   const openDonationModal = () => {
@@ -39,7 +41,7 @@ useEffect(() => {
         className="floating-donate-button"
         onClick={() => setIsOpen(true)}
       >
-        Donate Now
+        {label}
       </button>
 
       {isOpen && (

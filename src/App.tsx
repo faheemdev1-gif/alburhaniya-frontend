@@ -9,6 +9,7 @@ import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import GalleryPage from './pages/GalleryPage';
 import AdminRouter from './admin/AdminRouter';
+import { ContentProvider } from './content';
 import FloatingStripeButton from "./components/FloatingStripeButton";
 
 
@@ -39,7 +40,7 @@ function NotFound() {
 
 export default function App() {
   return (
-    <>
+    <ContentProvider>
       <Routes>
         <Route
           path="/"
@@ -108,6 +109,6 @@ export default function App() {
       </Routes>
 
       <FloatingStripeButton />
-    </>
+    </ContentProvider>
   );
 }

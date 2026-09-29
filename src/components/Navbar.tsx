@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useContent, imageUrl } from '../content';
 import Collapse from "bootstrap/js/dist/collapse";
 import { NavLink, Link, useLocation } from "react-router-dom";
 
@@ -25,8 +26,8 @@ function useNavLinkClass() {
 }
 
 export function Navbar({ variant }: { variant: "home" | "inner" }) {
+  const {branding,navigation} = useContent();
   const [scrolled, setScrolled] = useState(variant === "inner");
-  const [logoSrc, setLogoSrc] = useState("/logo.png");
   const navLinkClass = useNavLinkClass();
 
   useEffect(() => {
@@ -34,7 +35,6 @@ export function Navbar({ variant }: { variant: "home" | "inner" }) {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 60);
-      setLogoSrc(y > 50 ? "/logo-invert.png" : "/logo.png");
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
@@ -69,7 +69,7 @@ export function Navbar({ variant }: { variant: "home" | "inner" }) {
           <span className="brand-emblem">
             <img
               alt="Al Burhaniya International"
-              src={variant === "inner" ? "/logo-invert.png" : logoSrc}
+              src={imageUrl(variant === "inner" ? branding.logoInvert : scrolled ? branding.logoInvert : branding.logo)}
               style={{ maxWidth: 250, width: "100%" }}
               width="100%"
             />
@@ -92,32 +92,32 @@ export function Navbar({ variant }: { variant: "home" | "inner" }) {
           <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-1">
             <li className="nav-item">
               <NavLink className={() => navLinkClass('/#about')} to="/#about">
-                About
+                {navigation.about}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className={() => navLinkClass('/#activities')} to="/#activities">
-                Activities
+                {navigation.activities}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className={() => navLinkClass('/events')} to="/events">
-                Events
+                {navigation.events}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className={() => navLinkClass('/articles')} to="/articles">
-                Articles
+                {navigation.articles}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className={() => navLinkClass('/gallery')} to="/gallery">
-                Gallery
+                {navigation.gallery}
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className={() => navLinkClass('/#contact')} to="/#contact">
-                Contact
+                {navigation.contact}
               </NavLink>
             </li>
             <li className="nav-item ms-lg-3">
@@ -136,7 +136,7 @@ export function Navbar({ variant }: { variant: "home" | "inner" }) {
                 }}
               >
                 <i className="bi bi-heart-fill me-1" />
-                Donate Now
+                {navigation.donate}
               </button>
             </li>
           </ul>

@@ -1,3 +1,4 @@
+import { useContent, rich } from '../content';
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchArticles, type ApiArticle } from "../services/articleService";
@@ -15,6 +16,7 @@ function uniqueWriters(list: ApiArticle[]): number {
 }
 
 export function ArticlesPage() {
+  const pageContent = useContent().innerPages.articles;
   const [allArticles, setAllArticles] = useState<ApiArticle[]>([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState<string | null>(null);
@@ -87,13 +89,10 @@ export function ArticlesPage() {
             </ol>
           </nav>
           <div className="page-header-content">
-            <span className="section-eyebrow light">Stories &amp; Insights</span>
-            <h1 className="page-title">
-              Community <em>Articles</em>
-            </h1>
+            <span className="section-eyebrow light" dangerouslySetInnerHTML={rich(pageContent.eyebrow)}/>
+            <h1 className="page-title" dangerouslySetInnerHTML={rich(pageContent.heading)}/>
             <p className="page-subtitle">
-              Voices, stories, and insights from the heart of our community — written by members, volunteers, and
-              staff.
+              {pageContent.description}
             </p>
           </div>
           <div className="ph-stat ph-stat-1">
@@ -285,13 +284,14 @@ export function ArticlesPage() {
 }
 
 function NewsletterBand() {
+  const pageContent = useContent().innerPages.articles;
   const [msg, setMsg] = useState<string | null>(null);
   return (
     <Reveal className="newsletter-band reveal-up">
       <div className="nl-icon"><i className="bi bi-envelope-open-heart" /></div>
       <div className="nl-text">
-        <h3>Stay in the Loop</h3>
-        <p>Get our monthly newsletter with article highlights, events, and community news.</p>
+        <h3>{pageContent.newsletterHeading}</h3>
+        <p>{pageContent.newsletterDescription}</p>
       </div>
       <form
         className="nl-form"

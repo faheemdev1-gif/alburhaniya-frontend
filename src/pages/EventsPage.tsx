@@ -1,3 +1,4 @@
+import { useContent, rich } from '../content';
 // ═══════════════════════════════════════════════════════════════
 //  src/pages/EventsPage.tsx — API-driven version
 // ═══════════════════════════════════════════════════════════════
@@ -224,6 +225,7 @@ function MonthDivider({ label }: { label: string }) {
 //  Main Page Component
 // ════════════════════════════════════════════════════════════════
 export default function EventsPage() {
+  const pageContent = useContent().innerPages.events;
   const [tab,      setTab]      = useState<Tab>('upcoming');
   const [cat,      setCat]      = useState<string>('all');
   const [search,   setSearch]   = useState('');
@@ -323,10 +325,10 @@ export default function EventsPage() {
           <div className="row align-items-end">
             <div className="col-lg-7">
               <div className="page-header-content">
-                <span className="section-eyebrow light">What's On</span>
-                <h1 className="page-title">Community <em>Events</em></h1>
+                <span className="section-eyebrow light" dangerouslySetInnerHTML={rich(pageContent.eyebrow)}/>
+                <h1 className="page-title" dangerouslySetInnerHTML={rich(pageContent.heading)}/>
                 <p className="page-subtitle">
-                  From open-mic nights to annual festivals — something is always happening at Al Burhaniya. Find your next event below.
+                  {pageContent.description}
                 </p>
               </div>
             </div>
@@ -456,8 +458,8 @@ export default function EventsPage() {
           <div className="newsletter-band reveal-up">
             <div className="nl-icon"><i className="bi bi-calendar-check" /></div>
             <div className="nl-text">
-              <h3>Never Miss an Event</h3>
-              <p>Subscribe and get our monthly events newsletter delivered straight to your inbox.</p>
+              <h3>{pageContent.newsletterHeading}</h3>
+              <p>{pageContent.newsletterDescription}</p>
             </div>
             {nlDone ? (
               <p className="nl-success"><i className="bi bi-check-circle-fill me-2" />You're subscribed!</p>
