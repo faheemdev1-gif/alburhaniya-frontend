@@ -3,6 +3,7 @@ import api from '../../services/api';
 import { defaults, mergeContent, imageUrl, type SiteContent } from '../../content';
 import { PageHeader, Btn, Spinner } from '../components/Shared';
 import './SiteContentPage.css';
+import { uploadImage as storeImage, imageError } from '../../services/mediaService';
 
 const labels: Record<string,string> = { hero:'Homepage slider',stats:'Statistics strip',about:'About us',activities:'Activities & programmes',events:'Events section',articles:'Articles section',gallery:'Gallery section',join:'Membership banner',donate:'Donation section',testimonials:'Testimonials',contact:'Contact & social links',newsletter:'Newsletter banner',innerPages:'Article, event & gallery pages',navigation:'Navigation labels',branding:'Logo & footer' };
 const human = (s:string) => s.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
@@ -30,8 +31,8 @@ export default function SiteContentPage() {
   }
   async function uploadImage(file:File,path:(string|number)[]) {
     setSaving(true);setMessage('Uploading image…');
-    try {const form=new FormData();form.append('image',file);const r=await api.post('/site-content/image',form);update(path,r.data.url);setMessage('Image uploaded. Save changes to publish it.');}
-    catch(err:any){setMessage(err.response?.data?.message||'Image upload failed.');}
+    try {const r=await storeImage(file);update(path,r.url);setMessage('Image uploaded. Save changes to publish it.');}
+    catch(err:any){setMessage(imageError(err));}
     finally{setSaving(false);}
   }
   function field(value:Item,path:(string|number)[],key:string):React.ReactNode {

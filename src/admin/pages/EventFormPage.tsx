@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { adminEvents } from '../services/adminApi';
 import { PageHeader, Field, Btn, Spinner } from '../components/Shared';
 import './FormPage.css';
+import { uploadImage, imageError } from '../../services/mediaService';
+import { imageUrl } from '../../content';
 
 const CATEGORY_OPTIONS = [
   { value: 'gathering', label: 'Gathering' },
@@ -49,6 +51,7 @@ export default function EventFormPage() {
   const [schedule, setSchedule] = useState<ScheduleItem[]>([{ time: '', item: '' }]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -96,6 +99,13 @@ export default function EventFormPage() {
 
   const setScheduleRow = (i: number, key: 'time' | 'item', val: string) => {
     setSchedule(s => s.map((row, idx) => idx === i ? { ...row, [key]: val } : row));
+  };
+
+  const handleEventImage = async (file:File) => {
+    setUploading(true);setError('');
+    try {const image=await uploadImage(file);setForm(f=>({...f,image:image.url,thumbImage:image.thumbnailUrl}));}
+    catch(err){setError(imageError(err));}
+    finally{setUploading(false);}
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -191,21 +201,27 @@ export default function EventFormPage() {
 
         {/* Images */}
         <div className="form-section-label">Images</div>
+        <div className="image-upload-row">
+          <label className="image-upload-btn">{uploading?'Uploading…':'Upload event image'}
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading}
+              style={{display:'none'}} onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)handleEventImage(file);}}/>
+          </label><span className="field-hint">The thumbnail is created automatically. You can still paste image URLs below.</span>
+        </div>
         <div className="form-grid-2">
-          <Field label="Main Image URL" required hint="Full URL or /uploads/filename.jpg">
+          <Field label="Main Image URL" required hint="Uploaded image or full URL">
             <input className="admin-input" value={form.image} onChange={set('image')} required placeholder="/uploads/event.jpg" />
             {form.image && (
               <img
-                src={form.image.startsWith('http') ? form.image : `http://localhost:5000${form.image}`}
+                src={imageUrl(form.image)}
                 alt="preview" className="form-img-preview"
               />
             )}
           </Field>
-          <Field label="Thumbnail Image URL" required hint="Smaller version for cards">
+          <Field label="Thumbnail Image URL" required hint="Created automatically when uploading">
             <input className="admin-input" value={form.thumbImage} onChange={set('thumbImage')} required placeholder="/uploads/event-thumb.jpg" />
             {form.thumbImage && (
               <img
-                src={form.thumbImage.startsWith('http') ? form.thumbImage : `http://localhost:5000${form.thumbImage}`}
+                src={imageUrl(form.thumbImage)}
                 alt="thumb preview" className="form-img-preview"
               />
             )}

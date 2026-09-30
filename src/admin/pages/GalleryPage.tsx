@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { adminGallery } from '../services/adminApi';
 import { PageHeader, Badge, Btn, Spinner, EmptyState, ConfirmModal, Field } from '../components/Shared';
 import './GalleryPage.css';
+import { imageUrl } from '../../content';
 
 const CATEGORIES = ['gatherings','music','sports','arts','dance','general'];
 const SIZES = ['normal','tall','wide'];
@@ -64,7 +65,7 @@ export default function GalleryPage() {
           {filtered.map(item => (
             <div key={item._id} className={`gallery-card size-${item.size || 'normal'}`}>
               <img
-                src={item.imageUrl?.startsWith('http') ? item.imageUrl : `http://localhost:5000${item.imageUrl}`}
+                src={imageUrl(item.thumbnailUrl || item.imageUrl)}
                 alt={item.title}
               />
               <div className="gallery-card-overlay">
@@ -164,14 +165,14 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
                 <div className="upload-drop-inner">
                   <span className="upload-drop-icon">▣</span>
                   <span>Click to select an image</span>
-                  <span className="upload-drop-hint">JPG, PNG, WebP — max 10MB</span>
+                  <span className="upload-drop-hint">JPG, PNG, WebP, GIF — max 10 MB</span>
                 </div>
               )
             }
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/gif"
               onChange={handleFile}
               style={{ display: 'none' }}
             />

@@ -3,7 +3,8 @@ import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminArticles } from '../services/adminApi';
 import { PageHeader, Field, Btn, Spinner } from '../components/Shared';
-import api from '../../services/api';
+import { uploadImage, imageError } from '../../services/mediaService';
+import { imageUrl } from '../../content';
 import './FormPage.css';
 
 const CATEGORY_OPTIONS = [
@@ -76,35 +77,14 @@ export default function ArticleFormPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Client-side validation
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setUploadError('Only JPEG, PNG, GIF, or WebP images are allowed.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('Image must be under 5 MB.');
-      return;
-    }
-
     setUploading(true);
     setUploadError('');
 
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-      // Title and category are required by the gallery endpoint
-      formData.append('title',    form.title || file.name.replace(/\.[^.]+$/, ''));
-      formData.append('category', 'general');
-
-      const { data } = await api.post('/gallery', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      // Auto-fill the image URL field with what the server returned
-      setForm(f => ({ ...f, image: data.imageUrl }));
+      const data = await uploadImage(file);
+      setForm(f => ({ ...f, image: data.url }));
     } catch (err: any) {
-      setUploadError(err?.response?.data?.message || 'Upload failed. Please try again.');
+      setUploadError(imageError(err));
     } finally {
       setUploading(false);
       // Reset file input so same file can be re-selected if needed
@@ -215,8 +195,11 @@ export default function ArticleFormPage() {
             className="admin-input"
             value={form.authorAvatar}
             onChange={set('authorAvatar')}
-            placeholder="https://… or /uploads/avatar.jpg"
+            placeholder="https://… or upload below"
           />
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading}
+            onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;setUploading(true);setUploadError('');try{const result=await uploadImage(file);setForm(f=>({...f,authorAvatar:result.thumbnailUrl}));}catch(err){setUploadError(imageError(err));}finally{setUploading(false);}}}/>
+          {form.authorAvatar && <img src={imageUrl(form.authorAvatar)} alt="Author preview" className="form-img-preview"/>}
         </Field>
 
         {/* ── Cover Image ─────────────────────────────────────── */}
@@ -268,7 +251,7 @@ export default function ArticleFormPage() {
           {form.image && (
             <div className="form-img-preview-wrap">
               <img
-                src={form.image.startsWith('http') ? form.image : `http://localhost:5000${form.image}`}
+                src={imageUrl(form.image)}
                 alt="Cover preview"
                 className="form-img-preview"
                 onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}

@@ -47,6 +47,6 @@ export function ContentProvider({children}:{children:ReactNode}) {
 }
 export const useContent = () => useContext(Context);
 export const rich = (value:string) => ({__html: value.replace(/<(?!\/?(?:em|br)\b)[^>]*>/gi, '').replace(/<em\b[^>]*>/gi,'<em>').replace(/<br\b[^>]*>/gi,'<br/>').replace(/&(?!amp;|lt;|gt;|quot;|#39;)/g,'&amp;')});
-export const imageUrl = (url:string) => !url ? '' : /^(https?:)?\/\//.test(url) ? url : (url.startsWith('/uploads/') || url.startsWith('/api/site-content/media/')) ? `${import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000'}${url}` : url;
+export const imageUrl = (url:string) => !url ? '' : /^(https?:)?\/\//.test(url) ? url : (url.startsWith('/uploads/') || url.startsWith('/api/site-content/media/') || url.startsWith('/api/media/')) ? `${import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000'}${url}` : url;
 
 export const safeHref = (href:string) => /^(https?:\/\/|mailto:|tel:|\/#|#|\/)/i.test(href) ? href : "#";

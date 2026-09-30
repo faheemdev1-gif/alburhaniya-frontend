@@ -285,7 +285,7 @@ export default function GalleryPage() {
                   style={{ animationDelay: `${(idx % 12) * 40}ms` }}
                 >
                   <img
-                    src={imgSrc(item.imageUrl)}
+                    src={imgSrc(item.thumbnailUrl || item.imageUrl)}
                     alt={item.title}
                     loading="lazy"
                   />

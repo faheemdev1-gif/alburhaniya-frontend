@@ -136,6 +136,7 @@ interface GalleryItem {
   title: string;
   category: string;
   imageUrl: string;
+  thumbnailUrl?: string;
   size: "normal" | "tall" | "wide";
 }
 
@@ -197,7 +198,7 @@ function GalleryGrid() {
             data-cat={g.category}
             style={{ animation: "fadeInScale .4s ease both" }}
           >
-            <img src={imgSrc(g.imageUrl)} alt={g.title} />
+            <img src={imgSrc(g.thumbnailUrl || g.imageUrl)} alt={g.title} />
             <div className="g-overlay">
               <span>{g.title}</span>
             </div>

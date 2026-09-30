@@ -6,6 +6,7 @@ export interface ApiGalleryItem {
   title: string;
   category: string;
   imageUrl: string;
+  thumbnailUrl?: string;
   filename: string;
   size: 'normal' | 'tall' | 'wide';
   order: number;

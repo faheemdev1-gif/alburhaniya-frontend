@@ -1,17 +1,23 @@
-# Website Content editor
+# Website content and image uploads
 
-The site already has an admin for articles, events, gallery items, and users. This update adds **Website Content** at `/admin/content` for the homepage, navigation, page introductions, branding, and footer.
+The admin panel has **Website Content** at `/admin/content` for the homepage, navigation, page introductions, branding, and footer. Articles, events, and gallery entries have their own admin pages.
 
-## Deploy
+## Image upload design
 
-1. Deploy the updated `server` and frontend together. Existing `MONGODB_URI`, `JWT_SECRET`, and admin account remain in use. The new MongoDB collections are created automatically on first save or image upload. No migration or seed is needed.
-2. Set the frontend's `VITE_API_URL` at build time to the backend's URL ending in `/api`, as with the existing project. Rebuild and deploy the frontend after changing it. The server CORS list in `server/src/server.ts` must contain your frontend domain.
-3. Log in with an **admin** account, open **Website Content**, choose a section, edit text or upload images, and select **Publish changes**. Editors without the admin role can view the admin interface but cannot save website content.
-4. Uploaded Website Content images are stored in MongoDB, and their URLs are saved when you publish. The existing Gallery feature still uses the original upload implementation.
+- The slider, About section, testimonials, logo, article covers and author avatars, event images, and gallery all use an authenticated `/api/media` uploader. Admins can also paste an image URL where a field allows it.
+- The backend checks the image, accepts JPG/PNG/WebP/GIF up to 10 MB by default, auto-orients it, removes metadata, and stores a WebP image (longest side at most 1920 px) plus a 640 px thumbnail in MongoDB. GIFs become still images.
+- Each upload returns a public immutable URL and thumbnail URL. Image bytes are not stored on Render's temporary disk. Gallery grids use thumbnails and the lightbox uses the full image. An event upload fills both main and thumbnail fields.
+- Older `/api/site-content/media/:id` URLs remain valid. Existing external URLs and `/uploads/` references are displayed as before, but old `/uploads/` files must be migrated while they are still accessible.
 
-The site displays the current built-in text until its first content save. If the content API is unavailable, the public site uses these defaults and the editor disables publishing. Slider titles and headings accept `<em>` and `<br/>` for emphasis and line breaks. Images accept a URL or an uploaded JPG, PNG, GIF, or WebP (the current backend default is 5 MB). Reorder cards, slides, and testimonials with the arrows.
+## Deploy and migrate older images
 
-Some existing forms (contact and newsletter) display success messages but have no delivery/subscription backend; this content editor changes their displayed wording, not their submission behavior. Existing event and article records remain managed in their dedicated admin pages. Stripe product/payment configuration is outside this content editor.
+1. **Before redeploying an old Render backend**, use a machine with access to your MongoDB and the existing backend URL. Set `MONGODB_URI` and `LEGACY_UPLOAD_BASE=https://your-old-backend.example`. From `server`, run `npm ci` and `npm run migrate:images` to see how many legacy URLs exist. Then run `npm run migrate:images -- --apply`. The command copies accessible `/uploads/` images into MongoDB and updates gallery, article, and event references. It reports unavailable files and does not delete old images. Keep a database backup before applying the migration.
+2. Deploy the updated `server` and frontend. The existing `MONGODB_URI`, `JWT_SECRET`, and admin account remain in use. Set `MAX_FILE_SIZE_MB=10` on the backend if the earlier deployment used a lower value. Set frontend `VITE_API_URL` at build time to the backend URL ending in `/api`. Rebuild the frontend.
+3. Log in as an admin and upload a test image in **Website Content**. Publish changes and refresh the public page. Also test an article, event, and gallery upload.
+
+If legacy files were already lost on a server restart, the migration cannot reconstruct them. Reupload those originals in the admin panel. The new media collection uses database storage and bandwidth; for a high-traffic or very large photo archive, a dedicated image CDN such as Cloudinary is a future alternative.
+
+The site displays built-in text until the first content save. Slider titles and headings accept `<em>` and `<br/>`. The contact and newsletter forms still display success messages without delivery/subscription backends. Stripe payment configuration is outside this editor.
 
 ## Local build
 
@@ -20,4 +26,4 @@ npm ci && npm run build
 cd server && npm ci && npm run build
 ```
 
-For local development, start the backend with `npm run dev` in `server` and the frontend with `npm run dev` at the project root. Supply your environment values separately; no credentials are included in this ZIP.
+For local development run `npm run dev` in `server` and at the project root. Set environment values separately; no credentials are included in this ZIP.
