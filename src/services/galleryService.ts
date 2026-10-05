@@ -38,9 +38,7 @@ export async function fetchGallery(category?: string): Promise<GalleryResponse> 
 
 // ── Admin ─────────────────────────────────────────────────────────
 export async function uploadGalleryImage(formData: FormData): Promise<ApiGalleryItem> {
-  const { data } = await api.post<ApiGalleryItem>('/gallery', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await api.post<ApiGalleryItem>('/gallery', formData);
   return data;
 }
 

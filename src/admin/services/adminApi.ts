@@ -24,7 +24,7 @@ export const adminEvents = {
 export const adminGallery = {
   list: () => api.get('/gallery'),
   create: (data: FormData) =>
-    api.post('/gallery', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+    api.post('/gallery', data),
   update: (id: string, data: unknown) => api.put(`/gallery/${id}`, data),
   delete: (id: string) => api.delete(`/gallery/${id}`),
 };

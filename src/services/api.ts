@@ -5,12 +5,13 @@ import axios from 'axios';
 import type { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/+$/, ''),
 });
 
 // Attach JWT token to every request if present
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  // The browser must supply the multipart boundary, including for older callers.
+  if (config.data instanceof FormData) config.headers.delete('Content-Type');
   const token = localStorage.getItem('communitas_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;

@@ -3,6 +3,7 @@ import { adminGallery } from '../services/adminApi';
 import { PageHeader, Badge, Btn, Spinner, EmptyState, ConfirmModal, Field } from '../components/Shared';
 import './GalleryPage.css';
 import { imageUrl } from '../../content';
+import { validateImage, imageError } from '../../services/mediaService';
 
 const CATEGORIES = ['gatherings','music','sports','arts','dance','general'];
 const SIZES = ['normal','tall','wide'];
@@ -128,6 +129,7 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
     setSaving(true);
     setError('');
     try {
+      validateImage(file);
       const fd = new FormData();
       fd.append('image', file);
       fd.append('title', title);
@@ -137,7 +139,7 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
       await adminGallery.create(fd);
       onSuccess();
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Upload failed');
+      setError(imageError(err));
     } finally {
       setSaving(false);
     }
