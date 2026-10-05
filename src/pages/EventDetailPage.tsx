@@ -1,3 +1,4 @@
+import { imageUrl } from '../services/imageUrls';
 // ═══════════════════════════════════════════════════════════════
 //  src/pages/EventDetailPage.tsx — API-driven version
 // ═══════════════════════════════════════════════════════════════
@@ -20,9 +21,7 @@ function getCapacityPercent(ev: ApiEvent): number {
 function getSpotsLeft(ev: ApiEvent): number {
   return Math.max(0, ev.capacity - ev.registered);
 }
-const imgSrc = (url: string) =>
-  !url ? '' : url.startsWith('http') ? url
-    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
+const imgSrc = imageUrl;
 
 // ── Category badge ───────────────────────────────────────────────
 function CatBadge({ cat, size = 'lg' }: { cat: string; size?: 'lg' | 'sm' }) {

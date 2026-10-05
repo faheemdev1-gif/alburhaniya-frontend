@@ -1,3 +1,4 @@
+import { imageUrl } from '../../services/imageUrls';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -123,7 +124,7 @@ export default function DashboardPage() {
               <Link key={a._id} to={`/admin/articles/${a._id}`} className="dash-list-item">
                 <div className="dash-item-img">
                   {a.image
-                    ? <img src={a.image.startsWith('http') ? a.image : `http://localhost:5000${a.image}`} alt={a.title} />
+                    ? <img src={imageUrl(a.image)} alt={a.title} />
                     : <span>✦</span>
                   }
                 </div>

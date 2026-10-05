@@ -13,6 +13,7 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
   const [filter, setFilter] = useState('all');
 
   const fetchItems = async () => {
@@ -75,6 +76,10 @@ export default function GalleryPage() {
                   <Badge label={item.category} />
                 </div>
                 <button
+                  className="gallery-edit-btn"
+                  onClick={() => setEditing(item)}
+                >Edit photo</button>
+                <button
                   className="gallery-delete-btn"
                   onClick={() => setDeleteId(item._id)}
                   title="Delete"
@@ -99,44 +104,51 @@ export default function GalleryPage() {
           onSuccess={() => { setShowUpload(false); fetchItems(); }}
         />
       )}
+      {editing && <UploadModal initial={editing} onClose={()=>setEditing(null)} onSuccess={()=>{setEditing(null);fetchItems();}}/>}
     </div>
   );
 }
 
 /* ── Upload Modal ── */
-function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function UploadModal({ onClose, onSuccess, initial }: { onClose: () => void; onSuccess: () => void; initial?:any }) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('general');
-  const [size, setSize] = useState('normal');
-  const [order, setOrder] = useState('0');
+  const [title, setTitle] = useState(initial?.title || '');
+  const [category, setCategory] = useState(initial?.category || 'general');
+  const [size, setSize] = useState(initial?.size || 'normal');
+  const [order, setOrder] = useState(String(initial?.order || 0));
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState('');
+  const [preview, setPreview] = useState(initial ? imageUrl(initial.imageUrl) : '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  useEffect(()=>{
+    if(!file)return;
+    const url=URL.createObjectURL(file);setPreview(url);
+    return ()=>URL.revokeObjectURL(url);
+  },[file]);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
+    e.target.value='';
+    try {validateImage(f);setFile(f);setError('');}
+    catch(err){setError(imageError(err));return;}
     if (!title) setTitle(f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) { setError('Please select an image'); return; }
+    if (!file && !initial) { setError('Please select an image'); return; }
     setSaving(true);
     setError('');
     try {
-      validateImage(file);
       const fd = new FormData();
-      fd.append('image', file);
+      if(file)fd.append('image', file);
       fd.append('title', title);
       fd.append('category', category);
       fd.append('size', size);
       fd.append('order', order);
-      await adminGallery.create(fd);
+      if(initial)await adminGallery.updatePhoto(initial._id,fd);
+      else await adminGallery.create(fd);
       onSuccess();
     } catch (err: any) {
       setError(imageError(err));
@@ -149,8 +161,8 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
     <div className="modal-backdrop">
       <div className="modal-box upload-modal">
         <div className="upload-modal-header">
-          <h2>Upload Photo</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <h2>{initial ? 'Edit Photo' : 'Upload Photo'}</h2>
+          <button className="modal-close" disabled={saving} onClick={onClose}>×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="upload-form">
@@ -167,7 +179,7 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
                 <div className="upload-drop-inner">
                   <span className="upload-drop-icon">▣</span>
                   <span>Click to select an image</span>
-                  <span className="upload-drop-hint">JPG, PNG, WebP, GIF — max 10 MB</span>
+                  <span className="upload-drop-hint">JPG, PNG, WebP, GIF — up to 20 MB; resized automatically</span>
                 </div>
               )
             }
@@ -176,6 +188,7 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
               onChange={handleFile}
+              disabled={saving}
               style={{ display: 'none' }}
             />
           </div>
@@ -202,9 +215,9 @@ function UploadModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
           </Field>
 
           <div className="form-footer">
-            <Btn variant="ghost" onClick={onClose}>Cancel</Btn>
-            <Btn type="submit" disabled={saving || !file}>
-              {saving ? 'Uploading…' : 'Upload Photo'}
+            <Btn variant="ghost" disabled={saving} onClick={onClose}>Cancel</Btn>
+            <Btn type="submit" disabled={saving || (!file && !initial)}>
+              {saving ? 'Preparing and uploading…' : initial ? 'Save Photo' : 'Upload Photo'}
             </Btn>
           </div>
         </form>

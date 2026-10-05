@@ -9,10 +9,7 @@ import StripeBuyButton from "../components/StripeBuyButton";
 import { useContent, imageUrl, rich, safeHref, type SiteContent } from "../content";
 
 // ── Image helper ─────────────────────────────────────────────────
-const imgSrc = (url: string) =>
-  !url ? "" : url.startsWith("http")
-    ? url
-    : `${import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:5000"}${url}`;
+const imgSrc = imageUrl;
 
 // ── Back To Top ──────────────────────────────────────────────────
 function BackToTop() {

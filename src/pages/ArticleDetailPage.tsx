@@ -1,3 +1,4 @@
+import { imageUrl } from '../services/imageUrls';
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import {
@@ -7,10 +8,7 @@ import {
 } from "../services/articleService";
 
 // Helper: support both absolute URLs and /uploads/ paths
-const imgSrc = (url: string) =>
-  url?.startsWith("http")
-    ? url
-    : `${import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:5000"}${url}`;
+const imgSrc = imageUrl;
 
 export function ArticleDetailPage() {
   const { slug } = useParams();

@@ -67,6 +67,8 @@
 }
 .gallery-card:hover .gallery-delete-btn { opacity: 1; }
 .gallery-delete-btn:hover { background: #ef4444; }
+.gallery-edit-btn { position:absolute; top:0.625rem; left:0.625rem; padding:0.35rem 0.65rem; border:0; border-radius:6px; background:#e7c46a; color:#111; cursor:pointer; }
+.gallery-card-overlay:focus-within { opacity:1; }
 
 /* Upload Modal */
 .upload-modal {

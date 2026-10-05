@@ -1,4 +1,5 @@
 import api from '../../services/api';
+import { prepareGalleryForm } from '../../services/imagePreparation';
 
 // ── Articles ─────────────────────────────────────────────────────
 export const adminArticles = {
@@ -23,8 +24,10 @@ export const adminEvents = {
 // ── Gallery ──────────────────────────────────────────────────────
 export const adminGallery = {
   list: () => api.get('/gallery'),
-  create: (data: FormData) =>
-    api.post('/gallery', data),
+  create: async (data: FormData) =>
+    api.post('/gallery', await prepareGalleryForm(data)),
+  updatePhoto: async (id:string,data:FormData) =>
+    api.put(`/gallery/${id}`,await prepareGalleryForm(data)),
   update: (id: string, data: unknown) => api.put(`/gallery/${id}`, data),
   delete: (id: string) => api.delete(`/gallery/${id}`),
 };

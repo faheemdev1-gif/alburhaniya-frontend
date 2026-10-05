@@ -1,3 +1,4 @@
+import { imageUrl } from '../services/imageUrls';
 import { useContent, rich } from '../content';
 // ═══════════════════════════════════════════════════════════════
 //  src/pages/EventsPage.tsx — API-driven version
@@ -48,9 +49,7 @@ function getMonthLabel(dateISO: string): string {
 }
 
 // ── Image helper ─────────────────────────────────────────────────
-const imgSrc = (url: string) =>
-  !url ? '' : url.startsWith('http') ? url
-    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
+const imgSrc = imageUrl;
 
 // ── Category badge ───────────────────────────────────────────────
 function CatBadge({ cat, className = '' }: { cat: string; className?: string }) {

@@ -1,5 +1,6 @@
 // src/services/galleryService.ts
 import api from './api';
+import { prepareGalleryForm } from './imagePreparation';
 
 export interface ApiGalleryItem {
   _id: string;
@@ -38,7 +39,7 @@ export async function fetchGallery(category?: string): Promise<GalleryResponse> 
 
 // ── Admin ─────────────────────────────────────────────────────────
 export async function uploadGalleryImage(formData: FormData): Promise<ApiGalleryItem> {
-  const { data } = await api.post<ApiGalleryItem>('/gallery', formData);
+  const { data } = await api.post<ApiGalleryItem>('/gallery', await prepareGalleryForm(formData));
   return data;
 }
 

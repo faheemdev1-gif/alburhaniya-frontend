@@ -1,3 +1,4 @@
+import { imageUrl } from '../../services/imageUrls';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { adminArticles } from '../services/adminApi';
@@ -97,7 +98,7 @@ export default function ArticlesPage() {
                     <div className="table-title-cell">
                       <div className="table-thumb">
                         {a.image
-                          ? <img src={a.image.startsWith('http') ? a.image : `http://localhost:5000${a.image}`} alt="" />
+                          ? <img src={imageUrl(a.image)} alt="" />
                           : <span>✦</span>
                         }
                       </div>

@@ -6,6 +6,7 @@ import { PageHeader, Field, Btn, Spinner } from '../components/Shared';
 import './FormPage.css';
 import { uploadImage, imageError } from '../../services/mediaService';
 import { imageUrl } from '../../content';
+import { inlineImageMarkup } from '../../services/imageUrls';
 
 const CATEGORY_OPTIONS = [
   { value: 'gathering', label: 'Gathering' },
@@ -101,15 +102,20 @@ export default function EventFormPage() {
     setSchedule(s => s.map((row, idx) => idx === i ? { ...row, [key]: val } : row));
   };
 
-  const handleEventImage = async (file:File) => {
+  const handleEventImage = async (file:File,target:'image'|'thumbImage'|'fullDesc'='image') => {
     setUploading(true);setError('');
-    try {const image=await uploadImage(file);setForm(f=>({...f,image:image.url,thumbImage:image.thumbnailUrl}));}
+    try {
+      const image=await uploadImage(file);
+      setForm(f=>target==='image' ? {...f,image:image.url,thumbImage:image.thumbnailUrl} :
+        target==='thumbImage' ? {...f,thumbImage:image.thumbnailUrl} : {...f,fullDesc:f.fullDesc+inlineImageMarkup(image.url)});
+    }
     catch(err){setError(imageError(err));}
     finally{setUploading(false);}
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if(uploading)return;
     setSaving(true);
     setError('');
     try {
@@ -203,7 +209,7 @@ export default function EventFormPage() {
         <div className="form-section-label">Images</div>
         <div className="image-upload-row">
           <label className="image-upload-btn">{uploading?'Uploading…':'Upload event image'}
-            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading}
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading||saving}
               style={{display:'none'}} onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)handleEventImage(file);}}/>
           </label><span className="field-hint">The thumbnail is created automatically. You can still paste image URLs below.</span>
         </div>
@@ -218,6 +224,10 @@ export default function EventFormPage() {
             )}
           </Field>
           <Field label="Thumbnail Image URL" required hint="Created automatically when uploading">
+            <label className="image-upload-btn">Upload a different thumbnail
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading||saving} style={{display:'none'}}
+                onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)handleEventImage(file,'thumbImage');}}/>
+            </label>
             <input className="admin-input" value={form.thumbImage} onChange={set('thumbImage')} required placeholder="/uploads/event-thumb.jpg" />
             {form.thumbImage && (
               <img
@@ -234,7 +244,11 @@ export default function EventFormPage() {
           <textarea className="admin-textarea" value={form.shortDesc} onChange={set('shortDesc')} required rows={3} placeholder="Brief summary…" />
         </Field>
         <Field label="Full Description" required hint="Shown on the event detail page">
-          <textarea className="admin-textarea" value={form.fullDesc} onChange={set('fullDesc')} required rows={8} placeholder="Full event details…" />
+          <label className="image-upload-btn">Add image to description
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading||saving} style={{display:'none'}}
+              onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)handleEventImage(file,'fullDesc');}}/>
+          </label>
+          <textarea className="admin-textarea" disabled={uploading} value={form.fullDesc} onChange={set('fullDesc')} required rows={8} placeholder="Full event details…" />
         </Field>
 
         {/* Tags */}
@@ -289,7 +303,7 @@ export default function EventFormPage() {
 
         <div className="form-footer">
           <Btn variant="ghost" onClick={() => navigate('/admin/events')}>Cancel</Btn>
-          <Btn type="submit" disabled={saving}>
+          <Btn type="submit" disabled={saving||uploading}>
             {saving ? 'Saving…' : isEdit ? 'Update Event' : 'Create Event'}
           </Btn>
         </div>

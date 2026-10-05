@@ -1,3 +1,4 @@
+import { imageUrl } from '../../services/imageUrls';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminEvents } from '../services/adminApi';
@@ -88,7 +89,7 @@ export default function EventsPage() {
                     <div className="table-title-cell">
                       <div className="table-thumb">
                         {ev.thumbImage || ev.image
-                          ? <img src={(ev.thumbImage || ev.image).startsWith('http') ? (ev.thumbImage || ev.image) : `http://localhost:5000${ev.thumbImage || ev.image}`} alt="" />
+                          ? <img src={imageUrl(ev.thumbImage || ev.image)} alt="" />
                           : <span>◈</span>
                         }
                       </div>

@@ -1,3 +1,4 @@
+import { imageUrl } from '../services/imageUrls';
 import { useContent, rich } from '../content';
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -67,8 +68,7 @@ export function ArticlesPage() {
   useEffect(() => { setVisible(6); }, [search, cat, sort]);
 
   // ── Image helper: support both absolute URLs and /uploads paths ─
-  const imgSrc = (url: string) =>
-    url?.startsWith("http") ? url : `${import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:5000"}${url}`;
+  const imgSrc = imageUrl;
 
   return (
     <>

@@ -576,3 +576,6 @@ body.inner-page .toggler-bar {
     flex: 1;
   }
 }
+
+/* Uploaded images inside article and event descriptions fit their text column. */
+.article-body img, .ev-body-text img { max-width:100%; height:auto; border-radius:8px; }

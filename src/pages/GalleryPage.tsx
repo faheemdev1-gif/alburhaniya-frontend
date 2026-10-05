@@ -1,3 +1,4 @@
+import { imageUrl } from '../services/imageUrls';
 import { useContent, rich } from '../content';
 // ═══════════════════════════════════════════════════════════════
 //  src/pages/GalleryPage.tsx
@@ -11,9 +12,7 @@ import { Reveal } from '../components/Reveal';
 import './GalleryPage.css';
 
 // ── Image helper ─────────────────────────────────────────────────
-const imgSrc = (url: string) =>
-  !url ? '' : url.startsWith('http') ? url
-    : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
+const imgSrc = imageUrl;
 
 // ── Categories ───────────────────────────────────────────────────
 const CATEGORIES = [

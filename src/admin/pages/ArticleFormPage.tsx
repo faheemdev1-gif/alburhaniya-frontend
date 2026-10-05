@@ -5,6 +5,7 @@ import { adminArticles } from '../services/adminApi';
 import { PageHeader, Field, Btn, Spinner } from '../components/Shared';
 import { uploadImage, imageError } from '../../services/mediaService';
 import { imageUrl } from '../../content';
+import { inlineImageMarkup } from '../../services/imageUrls';
 import './FormPage.css';
 
 const CATEGORY_OPTIONS = [
@@ -33,6 +34,7 @@ export default function ArticleFormPage() {
   const navigate   = useNavigate();
   const isEdit     = Boolean(id);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const [form,        setForm]        = useState(EMPTY);
   const [loading,     setLoading]     = useState(isEdit);
@@ -92,9 +94,21 @@ export default function ArticleFormPage() {
     }
   }
 
+  async function insertBodyImage(file:File) {
+    const start=contentRef.current?.selectionStart ?? form.content.length;
+    const end=contentRef.current?.selectionEnd ?? start;
+    setUploading(true);setUploadError('');
+    try {
+      const media=await uploadImage(file);
+      setForm(f=>({...f,content:f.content.slice(0,start)+inlineImageMarkup(media.url)+f.content.slice(end)}));
+    } catch(err){setUploadError(imageError(err));}
+    finally{setUploading(false);}
+  }
+
   // ── Submit ─────────────────────────────────────────────────────
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if(uploading)return;
     setSaving(true);
     setError('');
     try {
@@ -197,7 +211,7 @@ export default function ArticleFormPage() {
             onChange={set('authorAvatar')}
             placeholder="https://… or upload below"
           />
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading}
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading||saving}
             onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;setUploading(true);setUploadError('');try{const result=await uploadImage(file);setForm(f=>({...f,authorAvatar:result.thumbnailUrl}));}catch(err){setUploadError(imageError(err));}finally{setUploading(false);}}}/>
           {form.authorAvatar && <img src={imageUrl(form.authorAvatar)} alt="Author preview" className="form-img-preview"/>}
         </Field>
@@ -214,7 +228,7 @@ export default function ArticleFormPage() {
               type="button"
               className="image-upload-btn"
               onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
+              disabled={uploading||saving}
             >
               {uploading
                 ? <><span className="upload-spinner" /> Uploading…</>
@@ -289,7 +303,13 @@ export default function ArticleFormPage() {
         </Field>
 
         <Field label="Content" required hint="Full article body — HTML or plain text">
+          <label className="image-upload-btn">Insert image in article
+            <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading||saving} style={{display:'none'}}
+              onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)insertBodyImage(file);}}/>
+          </label>
           <textarea
+            ref={contentRef}
+            disabled={uploading||saving}
             className="admin-textarea"
             value={form.content}
             onChange={set('content')}
@@ -312,7 +332,7 @@ export default function ArticleFormPage() {
 
         <div className="form-footer">
           <Btn variant="ghost" onClick={() => navigate('/admin/articles')}>Cancel</Btn>
-          <Btn type="submit" disabled={saving}>
+          <Btn type="submit" disabled={saving||uploading}>
             {saving ? 'Saving…' : isEdit ? 'Update Article' : 'Create Article'}
           </Btn>
         </div>
