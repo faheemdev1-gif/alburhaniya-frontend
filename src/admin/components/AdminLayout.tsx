@@ -9,6 +9,7 @@ const NAV = [
   { to: '/admin/events',    label: 'Events',    icon: '◈' },
   { to: '/admin/gallery',   label: 'Gallery',   icon: '▣' },
   { to: '/admin/content',   label: 'Website Content', icon: '✎' },
+  { to: '/admin/messages',  label: 'Messages', icon: '✉', adminOnly: true },
   { to: '/admin/users',     label: 'Users',     icon: '◉', adminOnly: true },
 ];
 

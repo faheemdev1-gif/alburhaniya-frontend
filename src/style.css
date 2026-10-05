@@ -1220,6 +1220,8 @@ section { position: relative; overflow: hidden; }
 .soc-link.sm:hover { background: var(--clr-warm); transform: translateY(-3px); }
 
 /* Contact form */
+.contact-honeypot { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.contact-error { color:#a32626; }
 .contact-form { background: #fff; border-radius: var(--radius-lg); padding: 2.5rem; box-shadow: var(--shadow-sm); }
 .cf-field { display: flex; flex-direction: column; gap: 0.35rem; }
 .cf-field label { font-size: 0.82rem; font-weight: 600; color: var(--clr-ink); letter-spacing: 0.03em; }

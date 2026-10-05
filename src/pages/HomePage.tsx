@@ -391,12 +391,34 @@ export function HomePage() {
   const {stats,about,activities,events,articles,gallery,join,donate,testimonials,contact,newsletter} = content;
   const heading = (html:string) => rich(html);
   const [contactFlash, setContactFlash] = useState<string | null>(null);
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [contactSending, setContactSending] = useState(false);
+  const contactPending = useRef(false);
+  const contactSubmission = useRef<string | null>(null);
   const [nlFlash, setNlFlash] = useState<string | null>(null);
 
-  const onContact = (e: FormEvent<HTMLFormElement>) => {
+  const onContact = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setContactFlash("Thanks for reaching out! We'll be in touch within 48 hours.");
-    e.currentTarget.reset();
+    if (contactPending.current) return;
+    const form = e.currentTarget;
+    const fields = new FormData(form);
+    contactPending.current = true;
+    setContactSending(true); setContactError(null); setContactFlash(null);
+    try {
+      contactSubmission.current ||= crypto.randomUUID();
+      await api.post('/contact', {
+        submissionId: contactSubmission.current,
+        firstName: fields.get('firstName'), lastName: fields.get('lastName'), email: fields.get('email'),
+        interest: fields.get('interest'), message: fields.get('message'), website: fields.get('website'),
+      });
+      setContactFlash('Thank you. Your message has been received.');
+      form.reset(); contactSubmission.current = null;
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (status && status < 500) contactSubmission.current = null;
+      setContactError(status === 404 ? 'The contact form is temporarily unavailable. Please contact us using the email shown here.' :
+        err?.response?.data?.message || 'Your message could not be sent. Please try again; your form has been kept.');
+    } finally { contactPending.current = false; setContactSending(false); }
   };
 
   const onNl = (e: FormEvent<HTMLFormElement>) => {
@@ -586,17 +608,21 @@ export function HomePage() {
             </div>
             <div className="col-lg-6 offset-lg-1">
               <Reveal className="reveal-right">
-                <form className="contact-form" onSubmit={onContact}>
+                <form className="contact-form" onSubmit={onContact} onChange={()=>{contactSubmission.current=null;setContactFlash(null);}} aria-busy={contactSending}>
+                  <fieldset disabled={contactSending} style={{border:0,padding:0,margin:0,minWidth:0}}>
+                  <div className="contact-honeypot" aria-hidden="true"><label htmlFor="cf-website">Leave this field empty</label><input id="cf-website" name="website" type="text" tabIndex={-1} autoComplete="off" /></div>
                   <div className="row g-3">
-                    <div className="col-md-6"><div className="cf-field"><label htmlFor="cf-first">First Name</label><input id="cf-first" type="text" className="form-control" placeholder="Jane" required /></div></div>
-                    <div className="col-md-6"><div className="cf-field"><label htmlFor="cf-last">Last Name</label><input id="cf-last" type="text" className="form-control" placeholder="Smith" required /></div></div>
-                    <div className="col-12"><div className="cf-field"><label htmlFor="cf-email">Email</label><input id="cf-email" type="email" className="form-control" placeholder="jane@example.com" required /></div></div>
-                    <div className="col-12"><div className="cf-field"><label htmlFor="cf-interest">I'm interested in…</label><select id="cf-interest" className="form-select" defaultValue="Joining as a member"><option>Joining as a member</option><option>Volunteering</option><option>Partnering / Sponsorship</option><option>A specific programme</option><option>General enquiry</option></select></div></div>
-                    <div className="col-12"><div className="cf-field"><label htmlFor="cf-msg">Message</label><textarea id="cf-msg" className="form-control" rows={5} placeholder="Tell us a little about yourself or your question…" required /></div></div>
-                    <div className="col-12"><button type="submit" className="btn btn-primary-main w-100">Send Message <i className="bi bi-arrow-right ms-1" /></button></div>
+                    <div className="col-md-6"><div className="cf-field"><label htmlFor="cf-first">First Name</label><input id="cf-first" name="firstName" autoComplete="given-name" maxLength={80} type="text" className="form-control" placeholder="Jane" required /></div></div>
+                    <div className="col-md-6"><div className="cf-field"><label htmlFor="cf-last">Last Name</label><input id="cf-last" name="lastName" autoComplete="family-name" maxLength={80} type="text" className="form-control" placeholder="Smith" required /></div></div>
+                    <div className="col-12"><div className="cf-field"><label htmlFor="cf-email">Email</label><input id="cf-email" name="email" autoComplete="email" maxLength={254} type="email" className="form-control" placeholder="jane@example.com" required /></div></div>
+                    <div className="col-12"><div className="cf-field"><label htmlFor="cf-interest">I'm interested in…</label><select id="cf-interest" name="interest" className="form-select" defaultValue="Joining as a member"><option>Joining as a member</option><option>Volunteering</option><option>Partnering / Sponsorship</option><option>A specific programme</option><option>General enquiry</option></select></div></div>
+                    <div className="col-12"><div className="cf-field"><label htmlFor="cf-msg">Message</label><textarea id="cf-msg" name="message" maxLength={5000} className="form-control" rows={5} placeholder="Tell us a little about yourself or your question…" required /></div></div>
+                    <div className="col-12"><button type="submit" className="btn btn-primary-main w-100">{contactSending ? 'Sending…' : 'Send Message'} <i className="bi bi-arrow-right ms-1" /></button></div>
                   </div>
+                  </fieldset>
+                  {contactError && <p role="alert" className="contact-error mt-3">{contactError}</p>}
+                  {contactFlash && <p role="status" className="mt-3 mb-0">{contactFlash}</p>}
                 </form>
-                {contactFlash ? <FormFlash message={contactFlash} onDone={() => setContactFlash(null)} /> : null}
               </Reveal>
             </div>
           </div>
