@@ -43,7 +43,7 @@
 
 .donation-modal {
   position: relative;
-  width: min(100%, 400px);
+  width: min(100%, 500px);
   max-height: calc(100vh - 40px);
   padding: 42px 18px 20px;
   overflow-y: auto;
@@ -53,10 +53,7 @@
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
 }
 
-.donation-modal stripe-buy-button {
-  display: block;
-  width: 100%;
-}
+.donation-modal .donation-widget { box-shadow: none; padding: 0; }
 
 .donation-modal-close {
   position: absolute;

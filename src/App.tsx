@@ -8,7 +8,10 @@ import { ArticleDetailPage } from "./pages/ArticleDetailPage";
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import GalleryPage from './pages/GalleryPage';
+import NewsletterActionPage from './pages/NewsletterActionPage';
 import AdminRouter from './admin/AdminRouter';
+import { DonationProvider } from './context/DonationContext';
+import DonationReturnPage from './pages/DonationReturnPage';
 import { ContentProvider } from './content';
 import FloatingStripeButton from "./components/FloatingStripeButton";
 
@@ -41,74 +44,81 @@ function NotFound() {
 export default function App() {
   return (
     <ContentProvider>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <HomePage />
-            </Layout>
-          }
-        />
+      <DonationProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <HomePage />
+              </Layout>
+            }
+          />
 
-        <Route
-          path="/articles"
-          element={
-            <Layout inner>
-              <ArticlesPage />
-            </Layout>
-          }
-        />
+          <Route
+            path="/articles"
+            element={
+              <Layout inner>
+                <ArticlesPage />
+              </Layout>
+            }
+          />
 
-        <Route
-          path="/articles/:slug"
-          element={
-            <Layout inner>
-              <ArticleDetailPage />
-            </Layout>
-          }
-        />
+          <Route
+            path="/articles/:slug"
+            element={
+              <Layout inner>
+                <ArticleDetailPage />
+              </Layout>
+            }
+          />
 
-        <Route
-          path="/events"
-          element={
-            <Layout inner>
-              <EventsPage />
-            </Layout>
-          }
-        />
+          <Route
+            path="/events"
+            element={
+              <Layout inner>
+                <EventsPage />
+              </Layout>
+            }
+          />
 
-        <Route
-          path="/events/:slug"
-          element={
-            <Layout inner>
-              <EventDetailPage />
-            </Layout>
-          }
-        />
+          <Route
+            path="/events/:slug"
+            element={
+              <Layout inner>
+                <EventDetailPage />
+              </Layout>
+            }
+          />
 
-        <Route
-          path="/gallery"
-          element={
-            <Layout inner>
-              <GalleryPage />
-            </Layout>
-          }
-        />
+          <Route
+            path="/gallery"
+            element={
+              <Layout inner>
+                <GalleryPage />
+              </Layout>
+            }
+          />
 
-        <Route path="/admin/*" element={<AdminRouter />} />
+          <Route path="/newsletter/confirm" element={<Layout inner><NewsletterActionPage key="confirm" action="confirm" /></Layout>} />
+          <Route path="/newsletter/unsubscribe" element={<Layout inner><NewsletterActionPage key="unsubscribe" action="unsubscribe" /></Layout>} />
 
-        <Route
-          path="*"
-          element={
-            <Layout inner>
-              <NotFound />
-            </Layout>
-          }
-        />
-      </Routes>
+          <Route path="/donation/return" element={<Layout inner><DonationReturnPage /></Layout>} />
 
-      <FloatingStripeButton />
+          <Route path="/admin/*" element={<AdminRouter />} />
+
+          <Route
+            path="*"
+            element={
+              <Layout inner>
+                <NotFound />
+              </Layout>
+            }
+          />
+        </Routes>
+
+        <FloatingStripeButton />
+      </DonationProvider>
     </ContentProvider>
   );
 }

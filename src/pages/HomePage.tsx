@@ -5,6 +5,7 @@ import { Reveal } from "../components/Reveal";
 import { fetchArticles, type ApiArticle } from "../services/articleService";
 import { fetchEvents, type ApiEvent } from "../services/eventService";
 import api from "../services/api";
+import NewsletterForm from "../components/home/NewsletterForm";
 import StripeBuyButton from "../components/StripeBuyButton";
 import { useContent, imageUrl, rich, safeHref, type SiteContent } from "../content";
 
@@ -263,60 +264,6 @@ function Testimonials({testimonials}:{testimonials:SiteContent['testimonials']['
   );
 }
 
-// ── Donate Card (unchanged) ──────────────────────────────────────
-function DonateCard() {
-  const amounts = ["£10", "£25", "£50", "£100", "£250", "Custom"];
-  const [amt, setAmt] = useState("£10");
-  const [freq, setFreq] = useState("One-time");
-  const [btnState, setBtnState] = useState<"idle" | "thanks">("idle");
-  const onDonateClick = () => {
-    setBtnState("thanks");
-    setTimeout(() => setBtnState("idle"), 4000);
-  };
-  return (
-    <div className="donate-card">
-      <h3>Choose an Amount</h3>
-      <div className="donate-amounts">
-        {amounts.map((a) => (
-          <button key={a} type="button" className={"amt-btn" + (amt === a ? " active" : "") + (a === "Custom" ? " custom-amt" : "")} onClick={() => setAmt(a)}>{a}</button>
-        ))}
-      </div>
-      <div className="donate-custom-wrap" style={{ display: amt === "Custom" ? "block" : "none" }}>
-        <label htmlFor="custom-amt">Enter amount (£)</label>
-        <input id="custom-amt" type="number" className="form-control" placeholder="e.g. 75" min={1} />
-      </div>
-      <div className="donate-frequency mt-3">
-        {(["One-time", "Monthly", "Annually"] as const).map((f) => (
-          <button key={f} type="button" className={"freq-btn" + (freq === f ? " active" : "")} onClick={() => setFreq(f)}>{f}</button>
-        ))}
-      </div>
-      <div className="donate-form mt-3">
-        <input type="text" className="form-control mb-2" placeholder="Full Name" />
-        <input type="email" className="form-control mb-2" placeholder="Email Address" />
-        <button type="button" className="btn btn-donate-submit w-100" onClick={onDonateClick} style={btnState === "thanks" ? { background: "var(--clr-green)" } : undefined}>
-          {btnState === "thanks" ? <><i className="bi bi-check-circle-fill me-2" />Thank you for your support!</> : <><i className="bi bi-heart-fill me-2" />Donate Now</>}
-        </button>
-      </div>
-      <p className="donate-note"><i className="bi bi-shield-check me-1" />Secure payment · Registered charity</p>
-    </div>
-  );
-}
-
-// ── Form Flash ───────────────────────────────────────────────────
-function FormFlash({ message, onDone }: { message: string | null; onDone: () => void }) {
-  useEffect(() => {
-    if (!message) return;
-    const t = setTimeout(onDone, 5000);
-    return () => clearTimeout(t);
-  }, [message, onDone]);
-  if (!message) return null;
-  return (
-    <div className="alert alert-success mt-3" style={{ borderRadius: 10, fontSize: "0.9rem" }}>
-      <i className="bi bi-check-circle-fill me-2" />{message}
-    </div>
-  );
-}
-
 // ── Articles section (fetched) ───────────────────────────────────
 function ArticlesSection() {
   const [featured, setFeatured] = useState<ApiArticle | null>(null);
@@ -395,7 +342,6 @@ export function HomePage() {
   const [contactSending, setContactSending] = useState(false);
   const contactPending = useRef(false);
   const contactSubmission = useRef<string | null>(null);
-  const [nlFlash, setNlFlash] = useState<string | null>(null);
 
   const onContact = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -419,12 +365,6 @@ export function HomePage() {
       setContactError(status === 404 ? 'The contact form is temporarily unavailable. Please contact us using the email shown here.' :
         err?.response?.data?.message || 'Your message could not be sent. Please try again; your form has been kept.');
     } finally { contactPending.current = false; setContactSending(false); }
-  };
-
-  const onNl = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setNlFlash("You're subscribed! Look out for our next newsletter.");
-    e.currentTarget.reset();
   };
 
   useEffect(() => {
@@ -570,9 +510,7 @@ export function HomePage() {
             </div>
             <div className="col-lg-5 offset-lg-1">
               <Reveal className="reveal-right">
-                <div className="col-lg-5 offset-lg-1">
-  <Reveal className="reveal-right"><StripeBuyButton /></Reveal>
-</div>
+                <StripeBuyButton />
               </Reveal>
             </div>
           </div>
@@ -637,11 +575,7 @@ export function HomePage() {
               <h3>{newsletter.heading}</h3>
               <p>{newsletter.description}</p>
             </div>
-            <form className="nl-form" onSubmit={onNl}>
-              <input type="email" placeholder="Your email address" required />
-              <button type="submit">Subscribe <i className="bi bi-arrow-right" /></button>
-            </form>
-            {nlFlash ? <div className="w-100 mt-2"><FormFlash message={nlFlash} onDone={() => setNlFlash(null)} /></div> : null}
+            <NewsletterForm />
           </Reveal>
         </div>
       </section>

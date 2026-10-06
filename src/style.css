@@ -1487,3 +1487,13 @@ section { position: relative; overflow: hidden; }
 .act-icon.pulse {
   animation: iconPulse 0.5s ease;
 }
+
+/* Newsletter form feedback and keyboard focus */
+.nl-form{flex-direction:column;min-width:min(280px,100%)}
+.nl-inputs{display:flex;gap:.5rem;border:0;padding:0;margin:0;min-width:0}
+.nl-inputs input{min-width:0;width:100%}
+.nl-consent{color:#fff;font-size:.78rem;line-height:1.5}
+.nl-feedback{margin:0;padding:.75rem 1rem;border-radius:8px;background:#fff;color:var(--clr-ink);font-size:.9rem}
+.nl-form input:focus-visible,.nl-form button:focus-visible{outline:3px solid var(--clr-ink);outline-offset:3px}
+.nl-form button:disabled{opacity:.65;cursor:wait}
+@media(max-width:767px){.nl-inputs{flex-direction:column}.nl-inputs button{justify-content:center}}

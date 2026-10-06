@@ -1,0 +1,12 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const ts=require('typescript');
+const path=require('node:path');
+const source=fs.readFileSync(path.resolve(__dirname,'../src/services/donationAmount.ts'),'utf8');
+const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
+const moduleValue={exports:{}};new Function('module','exports',compiled)(moduleValue,moduleValue.exports);
+const {parseDonationAmount,formatDonation,DONATION_PRESETS}=moduleValue.exports;
+test('donation presets exactly match the requested six GBP amounts',()=>{assert.deepEqual([...DONATION_PRESETS],[1000,2500,5000,10000,25000,50000]);assert.equal(formatDonation(7317),'£73.17');});
+test('custom donations preserve exact pence without floating point rounding',()=>{for(const [value,pence]of [['1',100],['10',1000],['73.17',7317],[' 25.5 ',2550],['10000.00',1000000],['1.01',101]])assert.equal(parseDonationAmount(value),pence);});
+test('invalid, fractional, negative, zero and out-of-range amounts are rejected',()=>{for(const value of ['',' ','0','0.99','-25','NaN','Infinity','1e3','10.999','10000.01','10001','1,000.00','£25','+25','10.'])assert.equal(parseDonationAmount(value),null,value);});

@@ -12,6 +12,7 @@ import GalleryPage from './pages/GalleryPage';
 import UsersPage from './pages/UsersPage';
 import SiteContentPage from './pages/SiteContentPage';
 import MessagesPage from './pages/MessagesPage';
+import SubscribersPage from './pages/SubscribersPage';
 
 // Import shared styles once here
 import './components/Shared.css';
@@ -43,6 +44,7 @@ export default function AdminRouter() {
           <Route path="content" element={<SiteContentPage />} />
 
           {/* Admin-only */}
+          <Route path="subscribers" element={<RequireAdmin><SubscribersPage /></RequireAdmin>} />
           <Route path="messages" element={<RequireAdmin><MessagesPage /></RequireAdmin>} />
           <Route
             path="users"
