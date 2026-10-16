@@ -39,65 +39,59 @@ function ValueCards({values}:{values:SiteContent['about']['values']}) {
 }
 
 // ── Event List — fetched from API ────────────────────────────────
+function eventSummary(description: string): string {
+  const parsed = new DOMParser().parseFromString(description || '', 'text/html');
+  parsed.querySelectorAll('script, style, template').forEach(node => node.remove());
+  return (parsed.body.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
 function EventList() {
   const [events, setEvents] = useState<ApiEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const listRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState('');
+  const [reload, setReload] = useState(0);
 
   useEffect(() => {
-    fetchEvents({ status: "upcoming", limit: 5 })
-      .then((res) => setEvents(res.events))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    const list = listRef.current;
-    if (!list || loading || events.length === 0) return;
-    const items = list.querySelectorAll<HTMLElement>(".event-item");
-    items.forEach((item) => {
-      item.style.opacity = "0";
-      item.style.transform = "translateX(-20px)";
-      item.style.transition =
-        "opacity 0.5s ease, transform 0.5s ease, border-color 0.35s ease, box-shadow 0.35s ease";
-    });
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0]?.isIntersecting) return;
-        items.forEach((item, i) => {
-          setTimeout(() => {
-            item.style.opacity = "1";
-            item.style.transform = "translateX(0)";
-          }, i * 100);
-        });
-        io.disconnect();
-      },
-      { threshold: 0.1 },
-    );
-    io.observe(list);
-    return () => io.disconnect();
-  }, [loading, events]);
+    let active = true;
+    const controller = new AbortController();
+    setLoading(true); setError('');
+    fetchEvents({ status: "upcoming", limit: 5 }, controller.signal)
+      .then((res) => {
+        if (!Array.isArray(res.events)) throw new Error('Invalid events response');
+        if (active) setEvents(res.events);
+      })
+      .catch(() => { if (active) setError('Upcoming events could not be loaded. Please try again.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; controller.abort(); };
+  }, [reload]);
 
   if (loading) {
     return (
-      <div style={{ padding: "2rem 0", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
+      <div className="homepage-events-status" role="status">
         Loading events…
       </div>
     );
   }
 
+  if (error) {
+    return <div className="homepage-events-status">
+      <p role="alert">{error}</p>
+      <button type="button" className="btn btn-primary-main" onClick={() => setReload(n => n + 1)}>Try again</button>
+    </div>;
+  }
+
   if (events.length === 0) {
     return (
-      <div style={{ padding: "2rem 0", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
+      <div className="homepage-events-status" role="status">
         No upcoming events at the moment. Check back soon!
       </div>
     );
   }
 
   return (
-    <div className="events-list reveal-up" ref={listRef}>
+    <div className="events-list" role="list" aria-label="Upcoming events">
       {events.map((ev) => (
-        <div key={ev._id} className={"event-item" + (ev.featured ? " featured" : "")}>
+        <div key={ev._id} role="listitem" className={"event-item" + (ev.featured ? " featured" : "")}>
           <div className="event-date-block">
             <span className="ev-month">{ev.month?.slice(0, 3).toUpperCase()}</span>
             <span className="ev-day">{ev.day}</span>
@@ -105,7 +99,7 @@ function EventList() {
           <div className="event-info">
             <span className={"ev-badge " + ev.categoryKey}>{ev.category}</span>
             <h4>{ev.title}</h4>
-            <p>{ev.shortDesc}</p>
+            <p>{eventSummary(ev.shortDesc)}</p>
             <div className="ev-meta">
               <span>
                 <i className="bi bi-clock me-1" />

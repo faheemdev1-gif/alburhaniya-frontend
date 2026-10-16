@@ -12,7 +12,8 @@
     "test:contact:browser": "npm run build && npm --prefix server run build && node scripts/test-contact-browser.cjs",
     "test:newsletter:browser": "npm run build && npm --prefix server run build && node scripts/test-newsletter-browser.cjs",
     "test:donation:browser": "npm run build && npm --prefix server run build && node scripts/test-donation-browser.cjs",
-    "test:events:browser": "npm run build && node scripts/test-event-browser.cjs"
+    "test:events:browser": "npm run build && node scripts/test-event-browser.cjs",
+    "test:homepage:browser": "npm run build && node scripts/test-homepage-events-browser.cjs"
   },
   "dependencies": {
     "axios": "^1.16.1",

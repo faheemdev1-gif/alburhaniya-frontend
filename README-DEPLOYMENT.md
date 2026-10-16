@@ -1,3 +1,5 @@
+Latest frontend correction: see `README-HOMEPAGE-EVENTS.md` for the 16 October homepage events visibility fix. Deploy the frontend again to apply it.
+
 # Donation, notifications and event registration update — 14 October 2026
 
 Both projects must be deployed. These archives do not deploy themselves.

@@ -621,6 +621,7 @@ section { position: relative; overflow: hidden; }
 }
 
 .events-list { display: flex; flex-direction: column; gap: 0; }
+.homepage-events-status { padding: 2rem 0; color: var(--clr-muted); text-align: center; }
 
 .event-item {
   display: grid;
@@ -1418,12 +1419,17 @@ section { position: relative; overflow: hidden; }
   .g-item.tall { grid-row: auto; }
 
   .event-item {
-    grid-template-columns: 70px 1fr;
+    grid-template-columns: 52px minmax(0, 1fr);
     grid-template-rows: auto auto;
+    gap: 1rem;
+    padding: 1.25rem;
+    align-items: start;
   }
+  .event-info { min-width: 0; }
+  .event-info p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   .event-action {
-    grid-column: 1 / -1;
-    text-align: right;
+    grid-column: 2;
+    text-align: left;
   }
 
   .testi-card { min-width: 80%; }

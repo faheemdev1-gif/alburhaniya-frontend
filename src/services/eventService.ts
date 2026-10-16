@@ -50,8 +50,8 @@ export interface EventsResponse {
 }
 
 // ── Public ────────────────────────────────────────────────────────
-export async function fetchEvents(filters: EventFilters = {}): Promise<EventsResponse> {
-  const { data } = await api.get<EventsResponse>('/events', { params: filters });
+export async function fetchEvents(filters: EventFilters = {}, signal?: AbortSignal): Promise<EventsResponse> {
+  const { data } = await api.get<EventsResponse>('/events', { params: filters, signal, timeout: 15000 });
   return data;
 }
 

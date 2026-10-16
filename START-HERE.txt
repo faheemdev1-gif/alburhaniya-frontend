@@ -1,0 +1,11 @@
+COMPLETE FRONTEND PROJECT
+
+Extract the ZIP. Open the al-burhaniya-manchester folder. Copy all its contents into your existing frontend project folder and replace matching files. Keep your existing .git folder and local environment settings.
+
+All frontend source, public images, configuration, dependencies list and lockfile are included. Generated node_modules and dist are rebuilt by npm.
+
+For a fresh folder: npm ci
+Build: npm run build
+Then push/deploy the frontend on Vercel.
+
+The homepage events visibility correction and previous donation, contact, newsletter and registration changes are included.

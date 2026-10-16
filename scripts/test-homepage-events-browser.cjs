@@ -1,0 +1,26 @@
+// Regression: check painted pixels via ancestor styles, rather than only DOM presence.
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
+const {chromium}=require('playwright');
+const fixture=process.env.HOMEPAGE_EVENTS_FIXTURE?JSON.parse(fs.readFileSync(process.env.HOMEPAGE_EVENTS_FIXTURE,'utf8')).events[0]:{_id:'111111111111111111111111',title:'Upcoming community event',slug:'upcoming-community-event',category:'Youth',categoryKey:'youth',featured:false,month:'OCT',day:'21',timeStart:'13:00',timeEnd:'15:00',location:'Community Centre',shortDesc:'<p>Build confidence &amp; life skills.</p>'};
+async function main(){
+ const dist=path.resolve(__dirname,'../dist');
+ const server=http.createServer((req,res)=>{let name=path.join(dist,new URL(req.url,'http://localhost').pathname);if(!name.startsWith(dist)||!fs.existsSync(name)||!fs.statSync(name).isFile())name=path.join(dist,'index.html');res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png'})[path.extname(name)]||'application/octet-stream');res.end(fs.readFileSync(name));});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`;let browser,mode='success';
+ try{
+  browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.CHROMIUM_EXECUTABLE_PATH}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
+  async function create(viewport,blockObservers=false){const page=await browser.newPage({viewport});if(blockObservers)await page.addInitScript(()=>{const Native=window.IntersectionObserver;window.IntersectionObserver=class extends Native{observe(el){if(el.matches('.events-list')||el.closest('.events-list'))return;super.observe(el);}};});await page.route('**/*',async route=>{
+   const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(!url.pathname.startsWith('/api/'))return route.abort();let status=200,data={};
+   if(url.pathname==='/api/events'){const selected=mode;assert.equal(url.searchParams.get('status'),'upcoming');assert.equal(url.searchParams.get('limit'),'5');await new Promise(r=>setTimeout(r,350));if(selected==='error'){status=503;data={message:'Unavailable'};}else if(selected==='malformed')data={events:null};else data={events:selected==='empty'?[]:[fixture],total:1,pages:1,page:1};}
+   else if(url.pathname==='/api/articles')data={articles:[],total:0};else if(url.pathname==='/api/gallery')data={items:[]};else if(url.pathname==='/api/articles/featured')data=null;
+   await route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+  });return page;}
+  async function visible(page){await page.goto(origin+'/#events');const section=page.locator('#events'),card=section.locator('.event-item').first();await card.waitFor({state:'attached'});await section.scrollIntoViewIfNeeded();await page.waitForTimeout(1000);const painted=await card.evaluate(el=>{for(let node=el;node;node=node.parentElement){const s=getComputedStyle(node);if(Number(s.opacity)<0.95||s.visibility==='hidden'||s.display==='none')return false;}return true;});assert.equal(painted,true,'Event exists in DOM but animation wrapper keeps it invisible');assert.equal(await card.locator('h4').textContent(),fixture.title);assert.equal(await card.getByRole('link',{name:'Details'}).getAttribute('href'),'/events/'+fixture.slug);assert(!/<\/?p>/.test(await card.locator('.event-info p').textContent()),'HTML description must display readable text');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));return section;}
+  const desktop=await create({width:1440,height:1000});await(await visible(desktop)).screenshot({path:path.resolve(__dirname,'../../../homepage-events-desktop.png')});console.log('Delayed homepage event is painted, with correct title, readable summary and Details link.');
+  const mobile=await create({width:390,height:844},true);await(await visible(mobile)).screenshot({path:path.resolve(__dirname,'../../../homepage-events-mobile.png')});console.log('Mobile events remain visible when animation callbacks never fire.');
+  mode='empty';await desktop.reload();await desktop.locator('#events').getByRole('status').filter({hasText:'No upcoming events'}).waitFor();
+  mode='error';await desktop.reload();const alert=desktop.locator('#events').getByRole('alert');await alert.waitFor();assert.equal(await desktop.locator('#events').getByText('No upcoming events at the moment. Check back soon!').count(),0);
+  mode='success';await desktop.locator('#events').getByRole('button',{name:'Try again'}).click();await desktop.locator('#events .event-item').waitFor();await alert.waitFor({state:'hidden'});
+  mode='malformed';await desktop.reload();await desktop.locator('#events').getByRole('alert').waitFor();console.log('Empty, API failure, retry and malformed-response states are distinct and readable.');
+ }finally{if(browser)await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
+}
+main().catch(err=>{console.error(err);process.exitCode=1;});
