@@ -1329,7 +1329,10 @@ section { position: relative; overflow: hidden; }
   color: rgba(255,255,255,.6);
   transition: color var(--transition);
 }
-.footer-links a:hover { color: var(--clr-gold); }
+.footer-links a:hover, .footer-links a:focus-visible { color: var(--clr-gold); }
+.footer-links a { overflow-wrap: anywhere; }
+.footer-contact { font-style: normal; font-size: 0.88rem; color: rgba(255,255,255,.6); line-height: 1.65; }
+#about, #activities, #contact { scroll-margin-top: 110px; }
 
 .footer-top { padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,.08); }
 

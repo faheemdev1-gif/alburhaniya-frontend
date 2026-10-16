@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import { ScrollToLocation } from "./components/ScrollToLocation";
 import { HomePage } from "./pages/HomePage";
 import { ArticlesPage } from "./pages/ArticlesPage";
 import { ArticleDetailPage } from "./pages/ArticleDetailPage";
@@ -28,6 +29,7 @@ function Layout({ inner, children }: { inner?: boolean; children: ReactNode }) {
       <Navbar variant={inner ? "inner" : "home"} />
       {children}
       <Footer />
+      <ScrollToLocation />
     </>
   );
 }

@@ -8,6 +8,8 @@ import { isImageField as isImage } from '../../services/imageUrls';
 
 const labels: Record<string,string> = { hero:'Homepage slider',stats:'Statistics strip',about:'About us',activities:'Activities & programmes',events:'Events section',articles:'Articles section',gallery:'Gallery section',join:'Membership banner',donate:'Donation section',testimonials:'Testimonials',contact:'Contact & social links',newsletter:'Newsletter banner',innerPages:'Article, event & gallery pages',navigation:'Navigation labels',branding:'Logo & footer' };
 const human = (s:string) => s.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
+// Preserve saved data without offering obsolete footer destinations in the editor.
+const legacyFooterFields = new Set(['footerInvolved', 'footerProgrammes', 'footerInfo', 'footerLinks', 'programmeLinks', 'infoLinks']);
 type Item = string | boolean | Item[] | {[key:string]:Item};
 export default function SiteContentPage() {
   const [data,setData] = useState<SiteContent>(defaults);
@@ -36,6 +38,7 @@ export default function SiteContentPage() {
     finally{setSaving(false);}
   }
   function field(value:Item,path:(string|number)[],key:string):React.ReactNode {
+    if (path[0] === 'branding' && legacyFooterFields.has(key)) return null;
     if(Array.isArray(value)) return <div className="content-array" key={key}>
       <h3>{human(key)}</h3>
       {value.map((item,i)=><div className="content-item" key={i}>
