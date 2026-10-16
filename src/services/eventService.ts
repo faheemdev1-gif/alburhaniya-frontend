@@ -70,8 +70,10 @@ export async function fetchRelatedEvents(id: string): Promise<ApiEvent[]> {
   return data;
 }
 
-export async function registerForEvent(id: string): Promise<{ registered: number; spotsLeft: number }> {
-  const { data } = await api.patch(`/events/${id}/register`);
+export type RegistrationPayload = { submissionId: string; firstName: string; lastName: string; email: string; phone: string; notes: string; places: number; website: string };
+export type RegistrationReceipt = { reference: string; registered: number; spotsLeft: number; message: string };
+export async function registerForEvent(id: string, payload: RegistrationPayload): Promise<RegistrationReceipt> {
+  const { data } = await api.post<RegistrationReceipt>(`/events/${id}/register`, payload);
   return data;
 }
 

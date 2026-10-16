@@ -12,6 +12,7 @@ import GalleryPage from './pages/GalleryPage';
 import UsersPage from './pages/UsersPage';
 import SiteContentPage from './pages/SiteContentPage';
 import MessagesPage from './pages/MessagesPage';
+import RegistrationsPage from './pages/RegistrationsPage';
 import SubscribersPage from './pages/SubscribersPage';
 
 // Import shared styles once here
@@ -39,6 +40,7 @@ export default function AdminRouter() {
           <Route path="articles/:id" element={<ArticleFormPage />} />
           <Route path="events" element={<EventsPage />} />
           <Route path="events/new" element={<EventFormPage />} />
+          <Route path="events/:id/registrations" element={<RequireAdmin><RegistrationsPage /></RequireAdmin>} />
           <Route path="events/:id" element={<EventFormPage />} />
           <Route path="gallery" element={<GalleryPage />} />
           <Route path="content" element={<SiteContentPage />} />

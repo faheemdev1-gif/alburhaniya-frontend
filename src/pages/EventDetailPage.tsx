@@ -1,3 +1,5 @@
+import EventRegistrationModal from '../components/EventRegistrationModal';
+import NewsletterForm from '../components/home/NewsletterForm';
 import { imageUrl } from '../services/imageUrls';
 // ═══════════════════════════════════════════════════════════════
 //  src/pages/EventDetailPage.tsx — API-driven version
@@ -27,77 +29,6 @@ const imgSrc = imageUrl;
 function CatBadge({ cat, size = 'lg' }: { cat: string; size?: 'lg' | 'sm' }) {
   const label = cat.charAt(0).toUpperCase() + cat.slice(1);
   return <span className={`${size === 'lg' ? 'ehb-cat' : 'ev-gc-cat'} ${cat}`}>{label}</span>;
-}
-
-// ── Registration Modal ───────────────────────────────────────────
-function RegisterModal({
-  event, show, onClose,
-}: { event: ApiEvent; show: boolean; onClose: () => void; }) {
-  const [submitted, setSubmitted] = useState(false);
-
-  if (!show) return null;
-
-  return (
-    <div className="ev-modal-backdrop" onClick={onClose}>
-      <div className="ev-modal-content" onClick={e => e.stopPropagation()}>
-        <div className="ev-modal-header">
-          <h5 className="modal-title">Register for Event</h5>
-          <button className="ev-modal-close" onClick={onClose}>
-            <i className="bi bi-x-lg" />
-          </button>
-        </div>
-        <div className="ev-modal-body">
-          {submitted ? (
-            <div className="ev-modal-success">
-              <div className="success-icon"><i className="bi bi-check-circle-fill" /></div>
-              <h4>You're registered!</h4>
-              <p>We've noted your place. A confirmation email will be sent shortly. See you there!</p>
-              <button className="btn btn-primary-main mt-2" onClick={onClose}>Close</button>
-            </div>
-          ) : (
-            <>
-              <p className="ev-modal-event-title">{event.title}</p>
-              <form onSubmit={e => { e.preventDefault(); setSubmitted(true); }}>
-                <div className="row g-3">
-                  <div className="col-6">
-                    <label className="ev-form-label">First Name</label>
-                    <input type="text" className="form-control ev-form-input" placeholder="Jane" required />
-                  </div>
-                  <div className="col-6">
-                    <label className="ev-form-label">Last Name</label>
-                    <input type="text" className="form-control ev-form-input" placeholder="Smith" required />
-                  </div>
-                  <div className="col-12">
-                    <label className="ev-form-label">Email Address</label>
-                    <input type="email" className="form-control ev-form-input" placeholder="jane@example.com" required />
-                  </div>
-                  <div className="col-12">
-                    <label className="ev-form-label">Phone (optional)</label>
-                    <input type="tel" className="form-control ev-form-input" placeholder="+44 7700 000000" />
-                  </div>
-                  <div className="col-12">
-                    <label className="ev-form-label">Number of places</label>
-                    <select className="form-select ev-form-input">
-                      <option>1</option><option>2</option><option>3</option><option>4</option>
-                    </select>
-                  </div>
-                  <div className="col-12">
-                    <label className="ev-form-label">Anything we should know?</label>
-                    <textarea className="form-control ev-form-input" rows={3} placeholder="Optional…" />
-                  </div>
-                </div>
-                <div className="ev-modal-actions mt-3">
-                  <button type="submit" className="btn-register-submit w-100">
-                    <i className="bi bi-check-circle me-2" />Confirm Registration
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // ── Related event card ───────────────────────────────────────────
@@ -140,7 +71,6 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [nlDone,    setNlDone]    = useState(false);
   const [copied,    setCopied]    = useState(false);
   const [readPct,   setReadPct]   = useState(0);
 
@@ -166,7 +96,7 @@ export default function EventDetailPage() {
     fetchEventById(slug)
       .then((ev) => {
         setEvent(ev);
-        return fetchRelatedEvents(ev._id);
+        return fetchRelatedEvents(ev._id).catch(() => []);
       })
       .then(setRelated)
       .catch(() => setNotFound(true))
@@ -209,7 +139,7 @@ export default function EventDetailPage() {
   const pct       = getCapacityPercent(event);
   const spots     = getSpotsLeft(event);
   const isPaid    = event.price !== 'Free';
-  const isSoldOut = spots === 0 && event.capacity > 0;
+  const isSoldOut = spots === 0;
   const isPast    = event.status === 'past';
 
   return (
@@ -345,11 +275,11 @@ export default function EventDetailPage() {
                       ? <><i className="bi bi-clock-history me-2" />Event Passed</>
                       : isSoldOut
                       ? <><i className="bi bi-x-circle me-2" />Sold Out</>
-                      : <><i className="bi bi-calendar-check me-2" />Register Free Place</>}
+                      : <><i className="bi bi-calendar-check me-2" />{isPaid ? 'Reserve Places' : 'Register Free Place'}</>}
                   </button>
                   {!isPast && !isSoldOut && (
                     <p className="ev-reg-note">
-                      <i className="bi bi-shield-check" /> Free cancellation up to 48 hours before
+                      <i className="bi bi-shield-check" /> Contact the organiser for changes to your registration
                     </p>
                   )}
                 </div>
@@ -418,19 +348,12 @@ export default function EventDetailPage() {
               <h3>Never Miss an Event</h3>
               <p>Subscribe and get our monthly events newsletter delivered straight to your inbox.</p>
             </div>
-            {nlDone ? (
-              <p className="nl-success"><i className="bi bi-check-circle-fill me-2" />You're subscribed!</p>
-            ) : (
-              <form className="nl-form" onSubmit={e => { e.preventDefault(); setNlDone(true); }}>
-                <input type="email" placeholder="Your email address" required />
-                <button type="submit">Subscribe <i className="bi bi-arrow-right" /></button>
-              </form>
-            )}
+            <NewsletterForm />
           </div>
         </div>
       </section>
 
-      <RegisterModal event={event} show={showModal} onClose={() => setShowModal(false)} />
+      {showModal && <EventRegistrationModal key={event._id} event={event} onClose={() => setShowModal(false)} onRegistered={receipt => setEvent(previous => previous ? { ...previous, registered: receipt.registered } : previous)} />}
     </div>
   );
 }

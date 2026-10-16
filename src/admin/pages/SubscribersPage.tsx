@@ -4,7 +4,7 @@ import { PageHeader, Btn, Spinner, EmptyState } from '../components/Shared';
 import './MessagesPage.css';
 import './SubscribersPage.css';
 
-type Subscriber = { _id: string; email: string; status: string; notificationStatus: string; createdAt: string; requestedAt?: string; confirmedAt?: string };
+type Subscriber = { _id: string; email: string; status: string; notificationStatus: string; adminNotificationStatus?: string; createdAt: string; requestedAt?: string; confirmedAt?: string };
 export default function SubscribersPage() {
   const [rows, setRows] = useState<Subscriber[]>([]);
   const [status, setStatus] = useState('all');
@@ -28,7 +28,7 @@ export default function SubscribersPage() {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [status, search, page, reload]);
-  async function change(row: Subscriber, action: 'resend' | 'unsubscribe') {
+  async function change(row: Subscriber, action: 'resend' | 'unsubscribe' | 'notify') {
     if (pending.current) return;
     pending.current = true; setWorking(true); setError(''); setNotice('');
     try {
@@ -61,9 +61,9 @@ export default function SubscribersPage() {
     </div>
     {loading ? <Spinner /> : rows.length === 0 ? <EmptyState icon="✉" title={error ? 'Subscribers unavailable' : 'No subscribers found'} body={error ? 'Use Refresh to try again.' : 'Newsletter sign-ups will appear here.'} /> :
       <div className="subscriber-table-wrap"><table className="subscriber-table"><thead><tr><th scope="col">Email</th><th scope="col">Status</th><th scope="col">Requested / confirmed</th><th scope="col">Actions</th></tr></thead><tbody>{rows.map(row => <tr key={row._id}>
-        <td>{row.email}<small>Email: {row.notificationStatus === 'sent' ? 'accepted by mail server' : row.notificationStatus}</small></td>
+        <td>{row.email}<small>Email: {row.notificationStatus === 'sent' ? 'accepted by mail server' : row.notificationStatus}</small>{row.status === 'confirmed' && <small>Admin notification: {row.adminNotificationStatus || 'pending'}</small>}</td>
         <td>{row.status}</td><td>{new Date(row.requestedAt || row.createdAt).toLocaleDateString()}{row.confirmedAt && <small>Confirmed {new Date(row.confirmedAt).toLocaleDateString()}</small>}</td>
-        <td><div className="subscriber-actions">{row.status === 'pending' && <Btn small disabled={working || !configured} onClick={() => change(row, 'resend')}>Resend confirmation</Btn>}{row.status !== 'unsubscribed' && <Btn small variant="danger" disabled={working} onClick={() => setRemove(row)}>Unsubscribe</Btn>}</div></td>
+        <td><div className="subscriber-actions">{row.status === 'pending' && <Btn small disabled={working || !configured} onClick={() => change(row, 'resend')}>Resend confirmation</Btn>}{row.status === 'confirmed' && row.adminNotificationStatus !== 'sent' && <Btn small disabled={working || !configured} onClick={() => change(row, 'notify')}>Retry admin email</Btn>}{row.status !== 'unsubscribed' && <Btn small variant="danger" disabled={working} onClick={() => setRemove(row)}>Unsubscribe</Btn>}</div></td>
       </tr>)}</tbody></table></div>}
     <div className="messages-pagination"><Btn small disabled={page === 1 || loading || working} onClick={() => setPage(p => p - 1)}>Previous</Btn><span>Page {page} · {total} subscribers</span><Btn small disabled={page * 25 >= total || loading || working} onClick={() => setPage(p => p + 1)}>Next</Btn></div>
     {remove && <div className="modal-backdrop"><div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="unsubscribe-title"><p className="modal-msg" id="unsubscribe-title">Unsubscribe {remove.email} from the newsletter?</p><div className="modal-actions"><Btn variant="ghost" disabled={working} onClick={() => setRemove(null)}>Cancel</Btn><Btn variant="danger" disabled={working} onClick={() => change(remove, 'unsubscribe')}>{working ? 'Working…' : 'Unsubscribe'}</Btn></div></div></div>}

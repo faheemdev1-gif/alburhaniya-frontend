@@ -1,3 +1,4 @@
+import NewsletterForm from '../components/home/NewsletterForm';
 import { imageUrl } from '../services/imageUrls';
 import { useContent, rich } from '../content';
 // ═══════════════════════════════════════════════════════════════
@@ -336,17 +337,4 @@ export default function GalleryPage() {
   );
 }
 
-function NlForm() {
-  const [done, setDone] = useState(false);
-  if (done) return (
-    <p className="nl-success">
-      <i className="bi bi-check-circle-fill me-2" />You're subscribed!
-    </p>
-  );
-  return (
-    <form className="nl-form" onSubmit={e => { e.preventDefault(); setDone(true); }}>
-      <input type="email" placeholder="Your email address" required />
-      <button type="submit">Subscribe <i className="bi bi-arrow-right" /></button>
-    </form>
-  );
-}
+function NlForm() { return <NewsletterForm />; }

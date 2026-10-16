@@ -1,3 +1,4 @@
+import NewsletterForm from '../components/home/NewsletterForm';
 import { imageUrl } from '../services/imageUrls';
 import { useContent, rich } from '../content';
 // ═══════════════════════════════════════════════════════════════
@@ -229,27 +230,31 @@ export default function EventsPage() {
   const [cat,      setCat]      = useState<string>('all');
   const [search,   setSearch]   = useState('');
   const [view,     setView]     = useState<View>('grid');
-  const [nlDone,   setNlDone]   = useState(false);
   const [upcoming, setUpcoming] = useState<ApiEvent[]>([]);
   const [past,     setPast]     = useState<ApiEvent[]>([]);
   const [loading,  setLoading]  = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [reload, setReload] = useState(0);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   // Fetch both pools in parallel
   useEffect(() => {
-    setLoading(true);
+    let active = true;
+    setLoading(true); setLoadError('');
     Promise.all([
       fetchEvents({ status: 'upcoming', limit: 100 }),
       fetchEvents({ status: 'past',     limit: 100 }),
     ])
       .then(([upRes, pastRes]) => {
+        if (!active) return;
         setUpcoming(upRes.events);
         setPast(pastRes.events);
       })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => { if (active) setLoadError('Events could not be loaded. Please try again.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [reload]);
 
   // Client-side filter + search (same logic as original)
   const filtered = useMemo(() => {
@@ -429,7 +434,7 @@ export default function EventsPage() {
       {/* ── EVENTS DISPLAY ────────────────────────────── */}
       <section className="section-events-display">
         <div className="container">
-          {loading ? (
+          {loadError ? (<div className="not-found-state"><p role="alert">{loadError}</p><button className="btn btn-primary-main" onClick={() => setReload(n => n + 1)}>Try again</button></div>) : loading ? (
             <div className="ev-empty-state">
               <div className="ev-empty-icon" style={{ opacity: 0.4 }}>
                 <i className="bi bi-arrow-repeat" />
@@ -460,14 +465,7 @@ export default function EventsPage() {
               <h3>{pageContent.newsletterHeading}</h3>
               <p>{pageContent.newsletterDescription}</p>
             </div>
-            {nlDone ? (
-              <p className="nl-success"><i className="bi bi-check-circle-fill me-2" />You're subscribed!</p>
-            ) : (
-              <form className="nl-form" onSubmit={e => { e.preventDefault(); setNlDone(true); }}>
-                <input type="email" placeholder="Your email address" required />
-                <button type="submit">Subscribe <i className="bi bi-arrow-right" /></button>
-              </form>
-            )}
+            <NewsletterForm />
           </div>
         </div>
       </section>

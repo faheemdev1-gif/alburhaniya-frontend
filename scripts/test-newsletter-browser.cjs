@@ -43,7 +43,7 @@ async function main(){
     await form.getByRole('status').filter({hasText:'confirmation is currently unavailable'}).waitFor();assert.equal(last().status,'pending');assert.equal(await email.inputValue(),'jane@example.test');assert.equal(fixture.mail.length,0);
     console.log('Storage failure preserves the email; missing SMTP saves pending consent and shows an honest message.');
     process.env.SMTP_PASS='test-only';let release;fixture.state.holdMail=new Promise(r=>{release=r;});
-    await form.getByRole('button',{name:'Subscribe',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#newsletter-email').matches(':disabled'));
+    await form.getByRole('button',{name:'Subscribe',exact:true}).click();await form.getByRole('button',{name:'Subscribing…'}).waitFor();
     assert(await form.getByRole('button',{name:'Subscribing…'}).isDisabled());
     while(!fixture.mail.length)await new Promise(r=>setTimeout(r,5));fixture.state.holdMail=null;release();
     await form.getByRole('status').filter({hasText:'check your inbox'}).waitFor();assert.equal(await email.inputValue(),'');assert.equal(fixture.rows.size,1);assert.equal(fixture.mail.length,1);assert.equal(last().status,'pending');

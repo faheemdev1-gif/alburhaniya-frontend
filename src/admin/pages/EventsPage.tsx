@@ -1,10 +1,12 @@
 import { imageUrl } from '../../services/imageUrls';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { adminEvents } from '../services/adminApi';
 import { PageHeader, Badge, Btn, Spinner, EmptyState, ConfirmModal } from '../components/Shared';
 
 export default function EventsPage() {
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,6 +112,7 @@ export default function EventsPage() {
                   </td>
                   <td>
                     <div className="table-actions">
+                      {isAdmin && <Btn small variant="secondary" onClick={() => navigate(`/admin/events/${ev._id}/registrations`)}>Registrations</Btn>}
                       <Btn small variant="secondary" onClick={() => navigate(`/admin/events/${ev._id}`)}>Edit</Btn>
                       <Btn small variant="danger" onClick={() => setDeleteId(ev._id)}>Delete</Btn>
                     </div>
@@ -123,7 +126,7 @@ export default function EventsPage() {
 
       {deleteId && (
         <ConfirmModal
-          message="Delete this event? This action cannot be undone."
+          message="Delete this event and its saved registrations? This action cannot be undone."
           onConfirm={handleDelete}
           onCancel={() => setDeleteId(null)}
         />

@@ -11,6 +11,7 @@ import GalleryPage from './pages/GalleryPage';
 import NewsletterActionPage from './pages/NewsletterActionPage';
 import AdminRouter from './admin/AdminRouter';
 import { DonationProvider } from './context/DonationContext';
+import DonationPage from './pages/DonationPage';
 import DonationReturnPage from './pages/DonationReturnPage';
 import { ContentProvider } from './content';
 import FloatingStripeButton from "./components/FloatingStripeButton";
@@ -103,6 +104,8 @@ export default function App() {
           <Route path="/newsletter/confirm" element={<Layout inner><NewsletterActionPage key="confirm" action="confirm" /></Layout>} />
           <Route path="/newsletter/unsubscribe" element={<Layout inner><NewsletterActionPage key="unsubscribe" action="unsubscribe" /></Layout>} />
 
+          <Route path="/donate" element={<Layout inner><DonationPage /></Layout>} />
+          <Route path="/donation" element={<Layout inner><DonationPage /></Layout>} />
           <Route path="/donation/return" element={<Layout inner><DonationReturnPage /></Layout>} />
 
           <Route path="/admin/*" element={<AdminRouter />} />

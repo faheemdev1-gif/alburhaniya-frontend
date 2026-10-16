@@ -1,3 +1,4 @@
+import NewsletterForm from '../components/home/NewsletterForm';
 import { imageUrl } from '../services/imageUrls';
 import { useContent, rich } from '../content';
 import { useEffect, useMemo, useState } from "react";
@@ -285,7 +286,6 @@ export function ArticlesPage() {
 
 function NewsletterBand() {
   const pageContent = useContent().innerPages.articles;
-  const [msg, setMsg] = useState<string | null>(null);
   return (
     <Reveal className="newsletter-band reveal-up">
       <div className="nl-icon"><i className="bi bi-envelope-open-heart" /></div>
@@ -293,24 +293,7 @@ function NewsletterBand() {
         <h3>{pageContent.newsletterHeading}</h3>
         <p>{pageContent.newsletterDescription}</p>
       </div>
-      <form
-        className="nl-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setMsg("You're subscribed! Look out for our next newsletter.");
-          e.currentTarget.reset();
-        }}
-      >
-        <input type="email" placeholder="Your email address" required />
-        <button type="submit">Subscribe <i className="bi bi-arrow-right" /></button>
-      </form>
-      {msg && (
-        <div className="w-100 mt-2">
-          <div className="alert alert-success" style={{ borderRadius: 10, fontSize: "0.9rem" }}>
-            <i className="bi bi-check-circle-fill me-2" />{msg}
-          </div>
-        </div>
-      )}
+      <NewsletterForm />
     </Reveal>
   );
 }

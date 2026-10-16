@@ -1,7 +1,8 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
 import api from '../../services/api';
 
 export default function NewsletterForm() {
+  const id = useId();
   const pending = useRef(false);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState('');
@@ -24,12 +25,12 @@ export default function NewsletterForm() {
   return <form className="nl-form" onSubmit={subscribe} aria-busy={sending} aria-label="Newsletter sign-up">
     <fieldset className="nl-inputs" disabled={sending}>
       <legend className="visually-hidden">Subscribe to our newsletter</legend>
-      <label htmlFor="newsletter-email" className="visually-hidden">Newsletter email address</label>
-      <input id="newsletter-email" name="email" type="email" autoComplete="email" maxLength={254} placeholder="Your email address" required aria-describedby="newsletter-consent newsletter-result" />
-      <div className="visually-hidden" aria-hidden="true"><label htmlFor="newsletter-website">Website</label><input id="newsletter-website" name="website" tabIndex={-1} autoComplete="off" /></div>
+      <label htmlFor={`${id}-email`} className="visually-hidden">Newsletter email address</label>
+      <input id={`${id}-email`} name="email" type="email" autoComplete="email" maxLength={254} placeholder="Your email address" required aria-describedby={`${id}-consent ${id}-result`} />
+      <div className="visually-hidden" aria-hidden="true"><label htmlFor={`${id}-website`}>Website</label><input id={`${id}-website`} name="website" tabIndex={-1} autoComplete="off" /></div>
       <button type="submit">{sending ? 'Subscribing…' : 'Subscribe'} <i className="bi bi-arrow-right" aria-hidden="true" /></button>
     </fieldset>
-    <small id="newsletter-consent" className="nl-consent">By subscribing, you agree to receive our news, events and community updates. Confirm by email; unsubscribe at any time.</small>
-    <div id="newsletter-result">{message && <p className="nl-feedback" role="status">{message}</p>}{error && <p className="nl-feedback" role="alert">{error}</p>}</div>
+    <small id={`${id}-consent`} className="nl-consent">By subscribing, you agree to receive our news, events and community updates. Confirm by email; unsubscribe at any time.</small>
+    <div id={`${id}-result`}>{message && <p className="nl-feedback" role="status">{message}</p>}{error && <p className="nl-feedback" role="alert">{error}</p>}</div>
   </form>;
 }
