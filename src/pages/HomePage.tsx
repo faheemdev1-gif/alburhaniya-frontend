@@ -532,7 +532,7 @@ export function HomePage() {
                 <div className="contact-info mt-4">
                   <div className="ci-item"><div className="ci-icon"><i className="bi bi-geo-alt-fill" /></div><div><strong>Address</strong><span>{contact.address}</span></div></div>
                   <div className="ci-item"><div className="ci-icon"><i className="bi bi-telephone-fill" /></div><div><strong>Phone</strong><span>{contact.phone}</span></div></div>
-                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-envelope-fill" /></div><div><strong>Email</strong><span>{contact.email}</span></div></div>
+                  <div className="ci-item"><div className="ci-icon"><i className="bi bi-envelope-fill" /></div><div><strong>Email</strong><span><a href={`mailto:${contact.email}`} style={{color:'inherit'}}>{contact.email}</a></span></div></div>
                   <div className="ci-item"><div className="ci-icon"><i className="bi bi-clock-fill" /></div><div><strong>Opening Hours</strong><span>{contact.hours}</span></div></div>
                 </div>
                 <div className="social-links mt-4">{(['facebook','instagram','twitter','youtube','whatsapp'] as const).filter(k=>contact[k]).map(k=><a key={k} href={safeHref(contact[k])} className="soc-link" aria-label={k}><i className={`bi bi-${k==='twitter'?'twitter-x':k}`}/></a>)}</div>

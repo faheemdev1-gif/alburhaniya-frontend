@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import api from './services/api';
+import { migrateSiteIdentity } from './services/siteIdentity';
 
 export const defaults = {
   hero: { slides: [
@@ -29,7 +30,7 @@ export const defaults = {
     {quote:'"The cricket league was the reason I got fit, and the reason I met my best friends. Worth every Saturday morning."',img:'https://randomuser.me/api/portraits/men/32.jpg',name:'Ravi Sharma',role:'Member since 2018'},
     {quote:'"Running the community mural project was the most meaningful creative work I\'ve done. Al Burhaniya makes art feel purposeful."',img:'https://randomuser.me/api/portraits/women/28.jpg',name:'Elena Torres',role:'Volunteer Artist'},
     {quote:'"As a donor, I see exactly where my money goes. The annual impact report is transparent and the team is passionate. I give every year."',img:'https://randomuser.me/api/portraits/men/58.jpg',name:'James Holloway',role:'Supporter since 2017'}] },
-  contact: {eyebrow:'Get In Touch',heading:"We'd Love to <em>Hear</em><br/>From You",description:'Whether you want to join, volunteer, partner, or just ask a question — our doors (and inboxes) are always open.',address:'164 Cheetham Hill Rd, Cheetham Hill, Manchester M8 8LQ',phone:'+44 74 5942 4579',email:'info@al-burhaniyainternational.co.uk',hours:'Mon–Fri 8am–9pm · Sat–Sun 9am–6pm',facebook:'',instagram:'',twitter:'',youtube:'',whatsapp:''},
+  contact: {eyebrow:'Get In Touch',heading:"We'd Love to <em>Hear</em><br/>From You",description:'Whether you want to join, volunteer, partner, or just ask a question — our doors (and inboxes) are always open.',address:'164 Cheetham Hill Rd, Cheetham Hill, Manchester M8 8LQ',phone:'+44 74 5942 4579',email:'info@alburhaniyainternational.org.uk',hours:'Mon–Fri 8am–9pm · Sat–Sun 9am–6pm',facebook:'',instagram:'',twitter:'',youtube:'',whatsapp:''},
   newsletter: {heading:'Stay in the Loop',description:'Get our monthly newsletter with event highlights, articles, and community news.'},
   innerPages: {events:{eyebrow:"What's On",heading:'Community <em>Events</em>',description:'From open-mic nights to annual festivals — something is always happening at Al Burhaniya. Find your next event below.',newsletterHeading:'Never Miss an Event',newsletterDescription:'Subscribe and get our monthly events newsletter delivered straight to your inbox.'},articles:{eyebrow:'Stories &amp; Insights',heading:'Community <em>Articles</em>',description:'Voices, stories, and insights from the heart of our community — written by members, volunteers, and staff.',newsletterHeading:'Stay in the Loop',newsletterDescription:'Get our monthly newsletter with article highlights, events, and community news.'},gallery:{eyebrow:'Moments Captured',heading:'Our <em>Gallery</em>',description:'A window into the life and spirit of Al Burhaniya — from festivals and sports days to quiet creative sessions and everything in between.',newsletterHeading:'Never Miss a Moment',newsletterDescription:'Subscribe to our newsletter and get the latest photos and event highlights delivered to your inbox.'}},
   navigation: {about:'About',activities:'Activities',events:'Events',articles:'Articles',gallery:'Gallery',contact:'Contact',donate:'Donate Now'},
@@ -38,7 +39,7 @@ export const defaults = {
 export type SiteContent = typeof defaults;
 const Context = createContext<SiteContent>(defaults);
 export function mergeContent(data: Partial<SiteContent>): SiteContent {
-  return Object.fromEntries(Object.entries(defaults).map(([key, value]) => [key, {...value, ...(data[key as keyof SiteContent] || {})}])) as SiteContent;
+  return migrateSiteIdentity(Object.fromEntries(Object.entries(defaults).map(([key, value]) => [key, {...value, ...(data[key as keyof SiteContent] || {})}])) as SiteContent);
 }
 export function ContentProvider({children}:{children:ReactNode}) {
   const [content,setContent] = useState<SiteContent>(defaults);
