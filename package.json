@@ -14,7 +14,8 @@
     "test:donation:browser": "npm run build && npm --prefix server run build && node scripts/test-donation-browser.cjs",
     "test:events:browser": "npm run build && node scripts/test-event-browser.cjs",
     "test:homepage:browser": "npm run build && node scripts/test-homepage-events-browser.cjs",
-    "test:footer:browser": "npm run build && node scripts/test-footer-browser.cjs"
+    "test:footer:browser": "npm run build && node scripts/test-footer-browser.cjs",
+    "test:password-reset:browser": "npm run build && npm --prefix server run build && node scripts/test-password-reset-browser.cjs"
   },
   "dependencies": {
     "axios": "^1.16.1",

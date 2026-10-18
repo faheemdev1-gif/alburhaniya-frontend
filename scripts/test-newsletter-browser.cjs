@@ -10,6 +10,7 @@ const {newsletterFixture}=require('../server/tests/helpers/newsletterFixture.cjs
 process.env.JWT_SECRET='newsletter-isolated-browser';
 Object.assign(process.env,{SMTP_HOST:'smtp.example.test',SMTP_PORT:'465',SMTP_USER:'owner@example.test',SMTP_PASS:'test-only',CONTACT_FROM_EMAIL:'owner@example.test'});
 const app=require('../server/dist/app').default;
+require('../server/tests/helpers/authFixture.cjs');
 const Model=require('../server/dist/models/NewsletterSubscriber').default;
 const fixture=newsletterFixture(Model,nodemailer);
 let role='admin';
@@ -32,7 +33,7 @@ async function main(){
       const req=route.request(),url=new URL(req.url());if(url.origin===origin)return route.continue();
       if(url.pathname.startsWith('/api/newsletter'))return route.fulfill({response:await route.fetch({url:base+url.pathname+url.search})});
       if(!url.pathname.startsWith('/api/'))return route.abort();
-      const data=url.pathname==='/api/auth/me'?{id:'admin',name:'Admin',role,email:'admin@example.test'}:
+      const data=url.pathname==='/api/auth/me'?{id:'aaaaaaaaaaaaaaaaaaaaaaaa',name:'Admin',role,email:'admin@example.test'}:
         url.pathname==='/api/articles'?{articles:[],total:0}:url.pathname==='/api/events'?{events:[],total:0}:url.pathname==='/api/gallery'?{items:[],total:0}:url.pathname==='/api/articles/featured'?null:{};
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
     });
@@ -54,7 +55,7 @@ async function main(){
     await page.goto(origin+'/newsletter/confirm#token='+confirmToken);await page.getByRole('button',{name:'Confirm subscription',exact:true}).waitFor();assert.equal(last().status,'pending');
     await page.getByRole('button',{name:'Confirm subscription',exact:true}).click();await page.getByRole('status').filter({hasText:'subscription is confirmed'}).waitFor();assert.equal(last().status,'confirmed');assert.equal(new URL(page.url()).hash,'');
     console.log('Opening a link alone does not confirm; the confirmation button records consent.');
-    await page.evaluate(t=>localStorage.setItem('communitas_token',t),jwt.sign({id:'admin',role:'admin'},process.env.JWT_SECRET));
+    await page.evaluate(t=>localStorage.setItem('communitas_token',t),jwt.sign({id:'aaaaaaaaaaaaaaaaaaaaaaaa',role:'admin'},process.env.JWT_SECRET));
     await page.goto(origin+'/admin/subscribers');await page.getByRole('heading',{name:'Subscribers',exact:true}).waitFor();await page.getByRole('cell',{name:'confirmed',exact:true}).waitFor();
     const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Export confirmed CSV'}).click();const download=await downloadPromise;const csv=fs.readFileSync(await download.path(),'utf8');assert(csv.includes('jane@example.test'));assert(csv.includes('/unsubscribe#token='));
     await page.getByRole('textbox',{name:'Search subscriber emails'}).fill('not-here');await page.getByRole('button',{name:'Search',exact:true}).click();await page.getByRole('heading',{name:'No subscribers found'}).waitFor();
@@ -70,7 +71,7 @@ async function main(){
     await page.getByRole('row').filter({hasText:'retry@example.test'}).getByRole('button',{name:'Unsubscribe',exact:true}).click();await page.locator('.modal-box').getByRole('button',{name:'Unsubscribe',exact:true}).click();await page.getByRole('status').filter({hasText:'removed from the mailing list'}).waitFor();assert.equal(last().status,'unsubscribed');
     console.log('SMTP failures preserve pending sign-ups; admin resend and unsubscribe work.');
     await page.goto(origin+'/newsletter/confirm#token='+'0'.repeat(64));await page.getByRole('button',{name:'Confirm subscription',exact:true}).click();await page.getByRole('alert').filter({hasText:'invalid or expired'}).waitFor();
-    role='user';await page.evaluate(t=>localStorage.setItem('communitas_token',t),jwt.sign({id:'staff',role:'user'},process.env.JWT_SECRET));await page.goto(origin+'/admin/subscribers');await page.waitForURL(origin+'/admin');assert.equal(await page.getByRole('link',{name:'Subscribers',exact:true}).count(),0);
+    role='user';await page.evaluate(t=>localStorage.setItem('communitas_token',t),jwt.sign({id:'bbbbbbbbbbbbbbbbbbbbbbbb',role:'user'},process.env.JWT_SECRET));await page.goto(origin+'/admin/subscribers');await page.waitForURL(origin+'/admin');assert.equal(await page.getByRole('link',{name:'Subscribers',exact:true}).count(),0);
     console.log('Invalid tokens show actionable errors; non-admin staff cannot access subscriber management.');
   }finally{fixture.restore();if(browser)await browser.close();for(const s of [frontend,backend]){s.closeAllConnections();await new Promise(r=>s.close(r));}}
 }

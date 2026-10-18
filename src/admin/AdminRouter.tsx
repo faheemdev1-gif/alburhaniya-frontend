@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RequireAuth, RequireAdmin } from './components/RequireAuth';
 import AdminLayout from './components/AdminLayout';
 import LoginPage from './pages/LoginPage';
+import PasswordRecoveryPage from './pages/PasswordRecoveryPage';
 import DashboardPage from './pages/DashboardPage';
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleFormPage from './pages/ArticleFormPage';
@@ -25,6 +26,8 @@ export default function AdminRouter() {
       <Routes>
         {/* Public */}
         <Route path="login" element={<LoginPage />} />
+        <Route path="forgot-password" element={<PasswordRecoveryPage key="request" action="request" />} />
+        <Route path="reset-password" element={<PasswordRecoveryPage key="reset" action="reset" />} />
 
         {/* Protected layout */}
         <Route

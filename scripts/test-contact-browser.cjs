@@ -9,6 +9,7 @@ const nodemailer=require('../server/node_modules/nodemailer');
 process.env.JWT_SECRET='contact-browser-isolated';
 Object.assign(process.env,{SMTP_HOST:'smtp.example.test',SMTP_PORT:'465',SMTP_USER:'owner@example.test',SMTP_PASS:'test-only',CONTACT_FROM_EMAIL:'owner@example.test',CONTACT_TO_EMAIL:'owner@example.test'});
 const app=require('../server/dist/app').default;
+require('../server/tests/helpers/authFixture.cjs');
 const Model=require('../server/dist/models/ContactMessage').default;
 const rows=new Map(),requests=[],mail=[];
 let failSave=true,failEmail=true,role='admin',releaseMail;
@@ -49,7 +50,7 @@ async function main(){
         return route.fulfill({response:await route.fetch({url:base+url.pathname+url.search})});
       }
       if(!url.pathname.startsWith('/api/'))return route.abort();
-      const data=url.pathname==='/api/auth/me'?{id:'admin',name:'Admin',role,email:'admin@example.test'}:
+      const data=url.pathname==='/api/auth/me'?{id:'aaaaaaaaaaaaaaaaaaaaaaaa',name:'Admin',role,email:'admin@example.test'}:
         url.pathname==='/api/articles'?{articles:[],total:0}:url.pathname==='/api/events'?{events:[],total:0}:url.pathname==='/api/gallery'?{items:[],total:0}:url.pathname==='/api/articles/featured'?null:{};
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});
     });
@@ -72,7 +73,7 @@ async function main(){
     assert.equal(await page.locator('#cf-first').inputValue(),'');assert.equal(rows.size,1);assert.equal(requests.length,2);assert.equal(requests[0].submissionId,requests[1].submissionId);
     assert.equal([...rows.values()][0].notificationStatus,'failed');
     console.log('Success follows actual backend persistence, resets fields and prevents simultaneous sends.');
-    const token=jwt.sign({id:'admin',role:'admin'},process.env.JWT_SECRET);await page.evaluate(t=>localStorage.setItem('communitas_token',t),token);
+    const token=jwt.sign({id:'aaaaaaaaaaaaaaaaaaaaaaaa',role:'admin'},process.env.JWT_SECRET);await page.evaluate(t=>localStorage.setItem('communitas_token',t),token);
     await page.goto(origin+'/admin/messages');await page.getByRole('heading',{name:'Messages',exact:true}).waitFor();
     await page.getByRole('button',{name:/Jane Smith/}).click();
     assert.equal(await page.locator('.message-body').textContent(),message);assert.equal(await page.evaluate(()=>window.contactXss),undefined);
@@ -83,7 +84,7 @@ async function main(){
     assert.equal(rows.size,1);assert.equal(mail.length,2);assert.equal(mail.at(-1).replyTo,'jane@example.test');
     console.log('Admin inbox safely renders message text, changes status, opens reply and retries a failed notification.');
     await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-    role='user';const staff=jwt.sign({id:'staff',role:'user'},process.env.JWT_SECRET);await page.evaluate(t=>localStorage.setItem('communitas_token',t),staff);await page.goto(origin+'/admin/messages');await page.waitForURL(origin+'/admin');assert.equal(await page.getByRole('link',{name:'Messages',exact:true}).count(),0);
+    role='user';const staff=jwt.sign({id:'bbbbbbbbbbbbbbbbbbbbbbbb',role:'user'},process.env.JWT_SECRET);await page.evaluate(t=>localStorage.setItem('communitas_token',t),staff);await page.goto(origin+'/admin/messages');await page.waitForURL(origin+'/admin');assert.equal(await page.getByRole('link',{name:'Messages',exact:true}).count(),0);
     console.log('Mobile layout fits the screen; non-admin staff cannot access the inbox.');
   }finally{if(browser)await browser.close();for(const s of [frontend,backend]){s.closeAllConnections();await new Promise(r=>s.close(r));}}
 }

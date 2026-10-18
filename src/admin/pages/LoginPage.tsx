@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
@@ -56,6 +56,7 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               placeholder="admin@alburhaniya.org"
               required
+              autoComplete="username"
               autoFocus
             />
           </div>
@@ -68,15 +69,17 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              autoComplete="current-password"
             />
           </div>
 
-          {error && <p className="login-error">{error}</p>}
+          {error && <p className="login-error" role="alert">{error}</p>}
 
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? <span className="login-spinner" /> : 'Sign In'}
           </button>
         </form>
+        <Link className="login-link login-back" to="/admin/forgot-password">Forgot password?</Link>
       </div>
     </div>
   );

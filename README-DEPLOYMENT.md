@@ -1,6 +1,6 @@
-Latest settings: see `README-DOMAIN-UPDATE.md` and `HOSTINGER-DOMAIN-UPDATE.env` for the new domain and mailbox.
+Latest feature: see `README-ADMIN-PASSWORD-RESET.md` for admin recovery and `ADMIN_SITE_URL`. Deploy both projects. The current backend suite has 84 tests; older validation counts below describe the earlier release.
 
-Latest frontend correction: see `README-HOMEPAGE-EVENTS.md` for the 16 October homepage events visibility fix. Deploy the frontend again to apply it.
+Latest settings: see `README-DOMAIN-UPDATE.md` and `HOSTINGER-DOMAIN-UPDATE.env` for the new domain and mailbox.
 
 # Donation, notifications and event registration update — 14 October 2026
 
